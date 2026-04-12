@@ -14,20 +14,13 @@ public class User {
     private String address;
     private LocalDate lastModified;
 
+    
     public User(String email, String name, String login, String password, String address) {
         this.email = email;
         this.name = name;
         this.login = login;
         this.password = password;
         this.address = address;
-        lastModified = LocalDate.now();
-    }
-
-    public User(UserDTO userDTO) {
-        this.email = userDTO.email();
-        this.name = userDTO.name();
-        this.login = userDTO.login();
-        this.address = userDTO.address();
         lastModified = LocalDate.now();
     }
 
@@ -86,6 +79,10 @@ public class User {
 
     private void setLastModified() {
         lastModified = LocalDate.now();
+    }
+
+    public static User fromDTO(UserDTO userDTO) {
+        return new User(userDTO.email(), userDTO.name(), userDTO.login(), userDTO.password(), userDTO.address());
     }
 
     @Override
