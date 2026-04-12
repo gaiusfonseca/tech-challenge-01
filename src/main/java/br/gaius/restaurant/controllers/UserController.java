@@ -54,20 +54,22 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody User user) {
+    public ResponseEntity<Void> save(@RequestBody UserDTO userDTO) {
         logger.info("POST /restaurants/v1");
 
-        userService.save(user);
+        User userEntity = new User(userDTO);
+        userService.save(userEntity);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{email}")
     public ResponseEntity<Void> update(
             @PathVariable String email,
-            @RequestBody UserDTO user) {
+            @RequestBody UserDTO userDTO) {
         logger.info("PUT /restaurants/v1");
 
-        userService.update(email, user);
+        User userEntity = new User(userDTO);
+        userService.update(email, userEntity);
         return ResponseEntity.noContent().build();
     }
 
