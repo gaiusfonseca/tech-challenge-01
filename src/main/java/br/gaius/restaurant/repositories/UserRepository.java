@@ -11,6 +11,8 @@ public interface UserRepository {
 
     public List<User> findByName(String name, int size, int offset);
 
+    public Optional<User> findByLogin(String login);
+
     public List<User> findAll(int size, int offset);
 
     public int save(User user);
@@ -22,4 +24,5 @@ public interface UserRepository {
     public int delete(String email);
 
     public int count();
+
 }

@@ -29,16 +29,27 @@ public class UserRepositoryDataHandler implements UserRepository {
     }
 
     @Override
-    public List<User> findByName(String name, int size, int offset){
+    public List<User> findByName(String name, int size, int offset) {
         String sqlStatement = "SELECT * FROM `user` WHERE `name` = :name LIMIT :size OFFSET :offset;";
 
         return jdbcClient
-            .sql(sqlStatement)
-            .param("name", name)
-            .param("size", size)
-            .param("offset", offset)
-            .query(User.class)
-            .list();
+                .sql(sqlStatement)
+                .param("name", name)
+                .param("size", size)
+                .param("offset", offset)
+                .query(User.class)
+                .list();
+    }
+
+    @Override
+    public Optional<User> findByLogin(String login) {
+        String sqlStatement = "SELECT * FROM `user` WHERE `login` = :login;";
+
+        return jdbcClient
+                .sql(sqlStatement)
+                .param("login", login)
+                .query(User.class)
+                .optional();
     }
 
     @Override
@@ -88,11 +99,11 @@ public class UserRepositoryDataHandler implements UserRepository {
         String sqlStatement = "UPDATE `user` SET `password` = :password, last_modified = :lastModified WHERE email = :email;";
 
         return jdbcClient
-            .sql(sqlStatement)
-            .param("password", user.getPassword())
-            .param("lastModified", user.getLastModified())
-            .param("email", user.getEmail())
-            .update();
+                .sql(sqlStatement)
+                .param("password", user.getPassword())
+                .param("lastModified", user.getLastModified())
+                .param("email", user.getEmail())
+                .update();
     }
 
     @Override
