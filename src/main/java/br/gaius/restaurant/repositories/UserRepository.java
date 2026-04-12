@@ -15,6 +15,8 @@ public interface UserRepository {
 
     public int update(String email, User user);
 
+    public int setPassword(User user);
+
     public int delete(String email);
 
     public int count();
