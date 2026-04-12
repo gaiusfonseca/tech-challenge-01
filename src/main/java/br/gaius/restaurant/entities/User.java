@@ -25,7 +25,7 @@ public class User {
     }
 
     public void setEmail(String email) {
-        //setLastModified();
+        setLastModified();
         this.email = email;
     }
 
@@ -34,7 +34,7 @@ public class User {
     }
 
     public void setName(String name) {
-        //setLastModified();
+        setLastModified();
         this.name = name;
     }
 
@@ -43,7 +43,7 @@ public class User {
     }
 
     public void setLogin(String login) {
-        //setLastModified();
+        setLastModified();
         this.login = login;
     }
 
@@ -57,7 +57,7 @@ public class User {
         }
 
         password = newPassword;
-        //setLastModified();
+        setLastModified();
         return true;
     }
 
@@ -66,7 +66,7 @@ public class User {
     }
 
     public void setAddress(String address) {
-        //setLastModified();
+        setLastModified();
         this.address = address;
     }
 
@@ -74,9 +74,9 @@ public class User {
         return lastModified;
     }
 
-    // private void setLastModified() {
-    //     lastModified = LocalDate.now();
-    // }
+    private void setLastModified() {
+        lastModified = LocalDate.now();
+    }
 
     @Override
     public int hashCode() {
