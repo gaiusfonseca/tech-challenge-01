@@ -2,6 +2,8 @@ package br.gaius.restaurant.entities;
 
 import java.time.LocalDate;
 
+import br.gaius.restaurant.exceptions.InvalidPasswordException;
+
 public class User {
 
     private String email;
@@ -51,14 +53,13 @@ public class User {
         return password;
     }
 
-    public boolean setPassword(String oldPassword, String newPassword) {
+    public void setPassword(String oldPassword, String newPassword) {
         if(!getPassword().equals(oldPassword)){
-            return false;
+            throw new InvalidPasswordException(oldPassword);
         }
 
         password = newPassword;
         setLastModified();
-        return true;
     }
 
     public String getAddress() {
