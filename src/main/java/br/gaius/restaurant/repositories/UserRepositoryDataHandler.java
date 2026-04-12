@@ -29,6 +29,19 @@ public class UserRepositoryDataHandler implements UserRepository {
     }
 
     @Override
+    public List<User> findByName(String name, int size, int offset){
+        String sqlStatement = "SELECT * FROM `user` WHERE `name` = :name LIMIT :size OFFSET :offset;";
+
+        return jdbcClient
+            .sql(sqlStatement)
+            .param("name", name)
+            .param("size", size)
+            .param("offset", offset)
+            .query(User.class)
+            .list();
+    }
+
+    @Override
     public List<User> findAll(int size, int offset) {
         String sqlStatement = "SELECT * FROM `user` LIMIT :size OFFSET :offset;";
 
