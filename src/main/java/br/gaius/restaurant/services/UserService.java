@@ -22,6 +22,11 @@ public class UserService {
         return userRepository.findById(email);
     }
 
+    public List<User> findByName(String name, int page, int size){
+        int offset = (page - 1) * size;
+        return userRepository.findByName(name, size, offset);
+    }
+
     public List<User> findAll(int page, int size) {
         int offset = (page - 1) * size;
         return userRepository.findAll(size, offset);
