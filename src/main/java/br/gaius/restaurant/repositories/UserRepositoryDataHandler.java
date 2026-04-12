@@ -58,13 +58,14 @@ public class UserRepositoryDataHandler implements UserRepository {
 
     @Override
     public int update(String email, User user) {
-        String sqlStatement = "UPDATE `user` SET `name` = :name, `login` = :login, `address` = :address WHERE email = :email;";
+        String sqlStatement = "UPDATE `user` SET `name` = :name, `login` = :login, `address` = :address, last_modified = :lastModified WHERE email = :email;";
 
         return jdbcClient
                 .sql(sqlStatement)
                 .param("name", user.getName())
                 .param("login", user.getLogin())
                 .param("address", user.getAddress())
+                .param("lastModified", user.getLastModified())
                 .param("email", email)
                 .update();
     }
