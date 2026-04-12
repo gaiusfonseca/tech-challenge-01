@@ -7,6 +7,7 @@ import br.gaius.restaurant.exceptions.InvalidPasswordException;
 
 public class User {
 
+    private long id;
     private String email;
     private String name;
     private String login;
@@ -22,6 +23,10 @@ public class User {
         this.password = password;
         this.address = address;
         lastModified = LocalDate.now();
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getEmail() {
