@@ -2,6 +2,7 @@ package br.gaius.restaurant.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import br.gaius.restaurant.dtos.PasswordDTO;
 import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.services.UserService;
 
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -68,14 +70,24 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/passwords/{email}")
+    public ResponseEntity<Void> setPassword(
+            @PathVariable String email,
+            @RequestBody PasswordDTO password) {
+        String logMessage = String.format("PATCH /restaurants/v1/passowrds/%s", email);
+        logger.info(logMessage);
+
+        userService.setPassword(email, password);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{email}")
-    public ResponseEntity<Void> delete(@PathVariable String email){
+    public ResponseEntity<Void> delete(@PathVariable String email) {
         String logMessage = String.format("DELETE /restaurants/v1/%s", email);
         logger.info(logMessage);
 
         userService.delete(email);
         return ResponseEntity.noContent().build();
     }
-
 
 }
