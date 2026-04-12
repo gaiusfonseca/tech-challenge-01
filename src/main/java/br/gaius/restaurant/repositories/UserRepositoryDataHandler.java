@@ -70,6 +70,18 @@ public class UserRepositoryDataHandler implements UserRepository {
     }
 
     @Override
+    public int setPassword(User user) {
+        String sqlStatement = "UPDATE `user` SET `password` = :password, last_modified = :lastModified WHERE email = :email;";
+
+        return jdbcClient
+            .sql(sqlStatement)
+            .param("password", user.getPassword())
+            .param("lastModified", user.getLastModified())
+            .param("email", user.getEmail())
+            .update();
+    }
+
+    @Override
     public int delete(String email) {
         String sqlStatement = "DELETE FROM `user` WHERE email = :email;";
 
@@ -87,5 +99,4 @@ public class UserRepositoryDataHandler implements UserRepository {
                 .sql(sqlStatement)
                 .update();
     }
-
 }
