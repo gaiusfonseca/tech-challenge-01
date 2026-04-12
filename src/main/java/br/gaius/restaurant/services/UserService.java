@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import br.gaius.restaurant.dtos.PasswordDTO;
 import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.repositories.UserRepositoryDataHandler;
 
@@ -52,6 +53,14 @@ public class UserService {
 
     public int count(){
         return userRepository.count();
+    }
+
+    public void setPassword(String email, PasswordDTO password) {
+        Optional<User> result = userRepository.findById(email);
+        User user = result.orElseThrow();
+        
+        user.setPassword(password.oldPassword(), password.newPassword());
+        userRepository.setPassword(user);
     }
 
 }
