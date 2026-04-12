@@ -2,6 +2,7 @@ package br.gaius.restaurant.entities;
 
 import java.time.LocalDate;
 
+import br.gaius.restaurant.dtos.UserDTO;
 import br.gaius.restaurant.exceptions.InvalidPasswordException;
 
 public class User {
@@ -19,6 +20,14 @@ public class User {
         this.login = login;
         this.password = password;
         this.address = address;
+        lastModified = LocalDate.now();
+    }
+
+    public User(UserDTO userDTO) {
+        this.email = userDTO.email();
+        this.name = userDTO.name();
+        this.login = userDTO.login();
+        this.address = userDTO.address();
         lastModified = LocalDate.now();
     }
 
