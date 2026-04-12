@@ -9,6 +9,8 @@ public interface UserRepository {
 
     public Optional<User> findById(String email);
 
+    public List<User> findByName(String name, int size, int offset);
+
     public List<User> findAll(int size, int offset);
 
     public int save(User user);
