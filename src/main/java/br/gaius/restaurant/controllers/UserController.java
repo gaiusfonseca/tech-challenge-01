@@ -42,6 +42,18 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> findByName(
+            @RequestParam String name,
+            @RequestParam int page,
+            @RequestParam int size) {
+        String logMessage = String.format("GET /restaurants/v1/%s?page=%d?size=%d", name, page, size);
+        logger.info(logMessage);
+
+        List<User> users = userService.findByName(name, page, size);
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping
     public ResponseEntity<List<User>> findAll(
             @RequestParam int page,
@@ -57,7 +69,7 @@ public class UserController {
     public ResponseEntity<Void> save(@RequestBody UserDTO userDTO) {
         logger.info("POST /restaurants/v1");
 
-        User userEntity = new User(userDTO);
+        User userEntity = User.fromDTO(userDTO);
         userService.save(userEntity);
         return ResponseEntity.noContent().build();
     }
@@ -68,7 +80,7 @@ public class UserController {
             @RequestBody UserDTO userDTO) {
         logger.info("PUT /restaurants/v1");
 
-        User userEntity = new User(userDTO);
+        User userEntity = User.fromDTO(userDTO);
         userService.update(email, userEntity);
         return ResponseEntity.noContent().build();
     }
