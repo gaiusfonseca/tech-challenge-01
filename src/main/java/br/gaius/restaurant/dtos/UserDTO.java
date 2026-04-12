@@ -1,5 +1,5 @@
 package br.gaius.restaurant.dtos;
 
-public record UserDTO(String name, String login, String address) {
+public record UserDTO(String email, String name, String login, String address) {
 
 }

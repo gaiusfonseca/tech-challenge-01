@@ -3,6 +3,7 @@ package br.gaius.restaurant.controllers;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.gaius.restaurant.dtos.PasswordDTO;
+import br.gaius.restaurant.dtos.UserDTO;
 import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.services.UserService;
 
@@ -63,7 +64,7 @@ public class UserController {
     @PutMapping("/{email}")
     public ResponseEntity<Void> update(
             @PathVariable String email,
-            @RequestBody User user) {
+            @RequestBody UserDTO user) {
         logger.info("PUT /restaurants/v1");
 
         userService.update(email, user);
