@@ -16,6 +16,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
 # TODO cria um JRE personalizado com jlink
+
 # Cria o Runtime Stage
 FROM eclipse-temurin:21-jre-noble AS runtime
 
@@ -44,7 +45,7 @@ COPY --from=builder /builder/extracted/application/ ./
 # expõe a porta 8080 na rede do container
 EXPOSE 8080
 
-# TODO alterna para o usuário criado
+# alterna para o usuário criado
 USER spring
 
 # Start the application jar - this is not the uber jar used by the builder
