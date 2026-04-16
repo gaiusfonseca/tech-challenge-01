@@ -2,30 +2,26 @@ package br.gaius.restaurant.entities;
 
 import java.time.LocalDate;
 
-import br.gaius.restaurant.dtos.UserDTO;
-import br.gaius.restaurant.exceptions.InvalidPasswordException;
+public abstract class User {
 
-public class User {
-
-    private long id;
-    private String email;
-    private String name;
+    private Long id;
     private String login;
     private String password;
+    private String email;
+    private String name;
     private String address;
     private LocalDate lastModified;
 
     
-    public User(String email, String name, String login, String password, String address) {
-        this.email = email;
-        this.name = name;
+    public User(String login, String password, String email, String name, String address) {
         this.login = login;
         this.password = password;
+        this.email = email;
+        this.name = name;
         this.address = address;
-        lastModified = LocalDate.now();
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -33,68 +29,40 @@ public class User {
         return email;
     }
 
-    public void setEmail(String email) {
-        setLastModified();
-        this.email = email;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        setLastModified();
-        this.name = name;
     }
 
     public String getLogin() {
         return login;
     }
 
-    public void setLogin(String login) {
-        setLastModified();
-        this.login = login;
-    }
-
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String oldPassword, String newPassword) {
-        if(!getPassword().equals(oldPassword)){
-            throw new InvalidPasswordException(oldPassword);
-        }
-
-        password = newPassword;
-        setLastModified();
+    public void setPassword(String password) {
+        // TODO implementar regras para validar senha
+        // comprimento, pelo menos uma maiuscula
+        // pelos um caractere especial
+        this.password = password;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
-        setLastModified();
-        this.address = address;
-    }
-
     public LocalDate getLastModified() {
         return lastModified;
     }
 
-    private void setLastModified() {
-        lastModified = LocalDate.now();
-    }
-
-    public static User fromDTO(UserDTO userDTO) {
-        return new User(userDTO.email(), userDTO.name(), userDTO.login(), userDTO.password(), userDTO.address());
-    }
+    public abstract String getType();
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((email == null) ? 0 : email.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
     }
 
@@ -107,17 +75,18 @@ public class User {
         if (getClass() != obj.getClass())
             return false;
         User other = (User) obj;
-        if (email == null) {
-            if (other.email != null)
+        if (id == null) {
+            if (other.id != null)
                 return false;
-        } else if (!email.equals(other.email))
+        } else if (!id.equals(other.id))
             return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "User [email=" + email + ", name=" + name + ", login=" + login + ", password=" + password
-                + ", lastModified=" + lastModified + "]";
+        return String.format("User[id = %d, login = %s, password = %s, email = %s, name = %s, address = %s, lastModified = %s]",
+            getId(), getLogin(), getPassword(), getEmail(), getName(), getAddress(), getLastModified()
+        );
     }
 }
