@@ -1,5 +1,6 @@
 package br.gaius.restaurant.repositories;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,14 +14,14 @@ public interface UserRepository {
 
     public List<User> findAll(int size, int offset);
 
-    public int save(User user);
+    public Optional<User> save(User user);
 
-    public int update(User user);
+    public Optional<User> update(User user);
 
-    public int updatePassword(String hashedPassword);
+    public int updatePassword(Long id, String hashedPassword, LocalDate lastModified);
 
     public int delete(Long id);
 
-    public int count();
+    public Long count();
 
 }
