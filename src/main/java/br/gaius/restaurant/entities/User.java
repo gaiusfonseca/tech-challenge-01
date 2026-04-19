@@ -4,21 +4,23 @@ import java.time.LocalDate;
 
 public abstract class User {
 
-    private Long id;
-    private String login;
-    private String password;
-    private String email;
-    private String name;
-    private String address;
-    private LocalDate lastModified;
+    private final Long id;
+    private final String login;
+    private final String password;
+    private final String email;
+    private final String name;
+    private final String address;
+    private final LocalDate lastModified;
 
-    
-    public User(String login, String password, String email, String name, String address) {
+    // construtor restrito ao nível de pacote
+    User(Long id, String login, String password, String email, String name, String address, LocalDate lastModified) {
+        this.id = id;
         this.login = login;
         this.password = password;
         this.email = email;
         this.name = name;
         this.address = address;
+        this.lastModified = lastModified;
     }
 
     public Long getId() {
@@ -39,13 +41,6 @@ public abstract class User {
 
     public String getPassword() {
         return password;
-    }
-
-    public void setPassword(String password) {
-        // TODO implementar regras para validar senha
-        // comprimento, pelo menos uma maiuscula
-        // pelos um caractere especial
-        this.password = password;
     }
 
     public String getAddress() {
@@ -85,8 +80,8 @@ public abstract class User {
 
     @Override
     public String toString() {
-        return String.format("User[id = %d, login = %s, password = %s, email = %s, name = %s, address = %s, lastModified = %s]",
-            getId(), getLogin(), getPassword(), getEmail(), getName(), getAddress(), getLastModified()
+        return String.format("User[id = %d, login = %s, password = %s, email = %s, name = %s, address = %s, lastModified = %s, userType = %s]",
+            getId(), getLogin(), getPassword(), getEmail(), getName(), getAddress(), getLastModified(), getType()
         );
     }
 }
