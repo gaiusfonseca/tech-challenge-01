@@ -1,5 +1,5 @@
 package br.gaius.restaurant.dtos;
 
-public record ChangePasswordDTO(Long id, String oldPassword, String newPassword) {
+public record ChangePasswordDTO(String oldPassword, String newPassword) {
 
 }
