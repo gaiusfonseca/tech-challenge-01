@@ -2,11 +2,9 @@ package br.gaius.restaurant.exceptions;
 
 public class InvalidPasswordException extends RuntimeException{
 
-    public InvalidPasswordException(String password){
-        super(buildMessage(password));
-    }
+    private static String template = "invalid password: %s for user with id: %d.";
 
-    private static String buildMessage(String password) {
-        return String.format("Senha inválida: %s. Não confere com a senha atual.", password);
+    public InvalidPasswordException(Long id, String password){
+        super(String.format(template, password, id));
     }
 }

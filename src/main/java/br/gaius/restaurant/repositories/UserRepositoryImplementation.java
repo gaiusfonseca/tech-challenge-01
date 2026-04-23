@@ -10,26 +10,16 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import br.gaius.restaurant.entities.UserBuilder;
 import br.gaius.restaurant.entities.User;
+import br.gaius.restaurant.entities.UserFactory;
 
 @Repository
 public class UserRepositoryImplementation implements UserRepository {
 
     private final JdbcClient jdbcClient;
     private final RowMapper<User> userMapper = (rs, index) -> {
-        UserBuilder builder = new UserBuilder();
-
-        return builder
-                .withId(rs.getLong("id"))
-                .withLogin(rs.getString("login"))
-                .withPassword(rs.getString("password"))
-                .withEmail(rs.getString("email"))
-                .withName(rs.getString("name"))
-                .withAddress(rs.getString("address"))
-                .withLastModified(rs.getDate("last_modified").toLocalDate())
-                .withUserType(rs.getString("user_type"))
-                .build();
+        UserFactory factory = UserFactory.of(rs.getString("user_type"));
+        return factory.fromReadDB(rs);
     };
 
     public UserRepositoryImplementation(JdbcClient jdbcClient) {
@@ -78,6 +68,7 @@ public class UserRepositoryImplementation implements UserRepository {
                 + "VALUES (:login, :password, :email, :name, :address, :lastModified, :userType);";
 
         KeyHolder generatedKey = new GeneratedKeyHolder();
+        UserFactory factory = UserFactory.of(user.getType());
 
         jdbcClient
                 .sql(sqlStatement)
@@ -90,9 +81,7 @@ public class UserRepositoryImplementation implements UserRepository {
                 .param("userType", user.getType())
                 .update(generatedKey);
 
-        UserBuilder builder = new UserBuilder(generatedKey.getKey().longValue(), user);
-        
-        return Optional.of(builder.build());
+        return Optional.of(factory.fromSaveDB(generatedKey.getKey().longValue(), user));
     }
 
     @Override
@@ -137,11 +126,12 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public Long count() {
-        String sqlStatement = "SELECT COUNT(*) FROM `user`";
+    public Long count(String email) {
+        String sqlStatement = "SELECT COUNT(*) FROM `user` WHERE email = :email;";
 
         return jdbcClient
                 .sql(sqlStatement)
+                .param("email", email)
                 .query(Long.class)
                 .single();
     }

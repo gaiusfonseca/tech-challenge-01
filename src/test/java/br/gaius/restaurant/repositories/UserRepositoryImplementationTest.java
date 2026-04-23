@@ -18,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.entities.UserBuilder;
-import br.gaius.restaurant.services.UserService;
 
 @JdbcTest
 @ActiveProfiles("test")
@@ -38,10 +37,10 @@ public class UserRepositoryImplementationTest {
         // given
         // 'pedro321', 'X321kHEz', 'pedro@gmail.com', 'pedro', 'rua das acácias, 12',
         // '2026-04-01', 'customer'
-        Long existingId = 1L;
+        Long id = 1L;
         UserBuilder builder = new UserBuilder();
-        Optional<User> expected = Optional.of(builder
-                .withId(existingId)
+        User user = builder
+                .withId(id)
                 .withLogin("pedro321")
                 .withPassword("X321kHEz")
                 .withEmail("pedro@gmail.com")
@@ -49,14 +48,15 @@ public class UserRepositoryImplementationTest {
                 .withAddress("rua das acácias, 12")
                 .withLastModified(LocalDate.of(2026, 04, 01))
                 .withUserType("customer")
-                .build());
+                .build();
+
+        Optional<User> expectedUser = Optional.of(user);
+
         // when
-        Optional<User> actual = repository.findById(existingId);
+        Optional<User> actualUser = repository.findById(id);
 
         // then
-        assertAll(
-                () -> assertEquals(expected, actual),
-                () -> assertEquals(expected.get().toString(), actual.get().toString()));
+        assertEquals(expectedUser, actualUser);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class UserRepositoryImplementationTest {
     }
 
     @Test
-    void shouldReturnEmptyListWhenNonExistingName() {
+    void shouldFindNoneWhenNonExistingName() {
         // given
         String nonExistingName = "leon";
         int size = 10;
@@ -212,7 +212,11 @@ public class UserRepositoryImplementationTest {
         UserBuilder builder = new UserBuilder();
         User expectedUser = builder
                 .withId(id)
+                .withLogin("pedro321")
+                .withEmail("pedro@gmail.com")
                 .withPassword(hashedPassword)
+                .withName("pedro")
+                .withAddress("rua das acácias, 12")
                 .withLastModified(lastModified)
                 .withUserType(userType)
                 .build();
@@ -228,30 +232,31 @@ public class UserRepositoryImplementationTest {
     }
 
     @Test
-    void shouldDeleteUserWhenExistingId(){
-        //given
+    void shouldDeleteUserWhenExistingId() {
+        // given
         int expectedAffectedRows = 1;
         Long id = 1L;
 
-        //when
+        // when
         int actualAffectedRows = repository.delete(id);
         Optional<User> actualUser = repository.findById(id);
 
-        //then
+        // then
         Executable checkAffectedRows = () -> assertEquals(expectedAffectedRows, actualAffectedRows);
         Executable checkEmptyUser = () -> assertTrue(actualUser.isEmpty());
         assertAll(checkAffectedRows, checkEmptyUser);
     }
 
     @Test
-    void shouldReturnTheCountOfRecords() {
-        //given
-        Long expected = 6L;
+    void shouldReturnTheCountOfRecordsWhenThereIsAnEmail() {
+        // given
+        Long expected = 1L;
+        String email = "maria.joana@gmail.com";
 
-        //when
-        Long actual = repository.count();
+        // when
+        Long actual = repository.count(email);
 
-        //then
+        // then
         assertEquals(expected, actual);
     }
 }

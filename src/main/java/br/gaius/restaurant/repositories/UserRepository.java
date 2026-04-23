@@ -22,6 +22,6 @@ public interface UserRepository {
 
     public int delete(Long id);
 
-    public Long count();
+    public Long count(String email);
 
 }

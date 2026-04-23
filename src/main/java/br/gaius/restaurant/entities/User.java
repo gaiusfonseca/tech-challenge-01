@@ -51,6 +51,10 @@ public abstract class User {
         return lastModified;
     }
 
+    public boolean passwordMatches(String oldPassword) {
+        return password.equals(oldPassword);
+    }
+    
     public abstract String getType();
 
     @Override
@@ -58,6 +62,12 @@ public abstract class User {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((login == null) ? 0 : login.hashCode());
+        result = prime * result + ((password == null) ? 0 : password.hashCode());
+        result = prime * result + ((email == null) ? 0 : email.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((address == null) ? 0 : address.hashCode());
+        result = prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
         return result;
     }
 
@@ -74,6 +84,36 @@ public abstract class User {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
+            return false;
+        if (login == null) {
+            if (other.login != null)
+                return false;
+        } else if (!login.equals(other.login))
+            return false;
+        if (password == null) {
+            if (other.password != null)
+                return false;
+        } else if (!password.equals(other.password))
+            return false;
+        if (email == null) {
+            if (other.email != null)
+                return false;
+        } else if (!email.equals(other.email))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (address == null) {
+            if (other.address != null)
+                return false;
+        } else if (!address.equals(other.address))
+            return false;
+        if (lastModified == null) {
+            if (other.lastModified != null)
+                return false;
+        } else if (!lastModified.equals(other.lastModified))
             return false;
         return true;
     }
