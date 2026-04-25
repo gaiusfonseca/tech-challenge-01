@@ -1,5 +1,7 @@
 package br.gaius.restaurant.dtos;
 
-public record CreateUserDTO(String login, String password, String email, String name, String address, String userType) {
+import br.gaius.restaurant.entities.Role;
+
+public record CreateUserDTO(String login, String password, String email, String name, String address, Role role) {
 
 }
