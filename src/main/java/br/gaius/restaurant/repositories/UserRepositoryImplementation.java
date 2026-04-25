@@ -4,23 +4,17 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import br.gaius.restaurant.entities.User;
-import br.gaius.restaurant.entities.UserFactory;
 
 @Repository
 public class UserRepositoryImplementation implements UserRepository {
 
     private final JdbcClient jdbcClient;
-    private final RowMapper<User> userMapper = (rs, index) -> {
-        UserFactory factory = UserFactory.of(rs.getString("user_type"));
-        return factory.fromReadDB(rs);
-    };
 
     public UserRepositoryImplementation(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
@@ -33,8 +27,19 @@ public class UserRepositoryImplementation implements UserRepository {
         return jdbcClient
                 .sql(sqlStatement)
                 .param("id", id)
-                .query(userMapper)
+                .query(UserRowMapper::fromDB)
                 .optional();
+    }
+
+    @Override
+    public Optional<User> findByLogin(String login) {
+        String sqlStatement = "SELECT * FROM `user` WHERE login = :login";
+
+        return jdbcClient
+            .sql(sqlStatement)
+            .param("login", login)
+            .query(UserRowMapper::fromDB)
+            .optional();
     }
 
     @Override
@@ -46,7 +51,7 @@ public class UserRepositoryImplementation implements UserRepository {
                 .param("name", name)
                 .param("size", size)
                 .param("offset", offset)
-                .query(userMapper)
+                .query(UserRowMapper::fromDB)
                 .list();
     }
 
@@ -58,17 +63,16 @@ public class UserRepositoryImplementation implements UserRepository {
                 .sql(sqlStatement)
                 .param("size", size)
                 .param("offset", offset)
-                .query(userMapper)
+                .query(UserRowMapper::fromDB)
                 .list();
     }
 
     @Override
     public Optional<User> save(User user) {
-        String sqlStatement = "INSERT INTO `user` (`login`, `password`, email, `name`, `address`, last_modified, user_type) "
-                + "VALUES (:login, :password, :email, :name, :address, :lastModified, :userType);";
+        String sqlStatement = "INSERT INTO `user` (`login`, `password`, email, `name`, `address`, last_modified, `role`) "
+                + "VALUES (:login, :password, :email, :name, :address, :lastModified, :role);";
 
         KeyHolder generatedKey = new GeneratedKeyHolder();
-        UserFactory factory = UserFactory.of(user.getType());
 
         jdbcClient
                 .sql(sqlStatement)
@@ -77,17 +81,20 @@ public class UserRepositoryImplementation implements UserRepository {
                 .param("email", user.getEmail())
                 .param("name", user.getName())
                 .param("address", user.getAddress())
-                .param("lastModified", user.getLastModified())
-                .param("userType", user.getType())
+                .param("lastModified", LocalDate.now())
+                .param("role", user.getRole().name())
                 .update(generatedKey);
 
-        return Optional.of(factory.fromSaveDB(generatedKey.getKey().longValue(), user));
+        Long id = generatedKey.getKey().longValue();
+        User updated = User.builder(user).withId(id).build();
+
+        return Optional.of(updated);
     }
 
     @Override
     public Optional<User> update(User user) {
         String sqlStatement = "UPDATE `user` SET `login` = :login, email = :email, `name` = :name, "
-                + "`address` = :address, last_modified = :lastModified, user_type = :userType WHERE id = :id;";
+                + "`address` = :address, last_modified = :lastModified, `role` = :role WHERE id = :id;";
 
         jdbcClient
                 .sql(sqlStatement)
@@ -95,8 +102,8 @@ public class UserRepositoryImplementation implements UserRepository {
                 .param("email", user.getEmail())
                 .param("name", user.getName())
                 .param("address", user.getAddress())
-                .param("lastModified", user.getLastModified())
-                .param("userType", user.getType())
+                .param("lastModified", LocalDate.now())
+                .param("role", user.getRole().name())
                 .param("id", user.getId())
                 .update();
 
@@ -104,13 +111,13 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public int updatePassword(Long id, String hashedPassword, LocalDate lastModified) {
+    public int updatePassword(Long id, String hashedPassword) {
         String sqlStatement = "UPDATE `user` SET `password` = :password, last_modified = :lastModified WHERE id = :id;";
 
         return jdbcClient
                 .sql(sqlStatement)
                 .param("password", hashedPassword)
-                .param("lastModified", lastModified)
+                .param("lastModified", LocalDate.now())
                 .param("id", id)
                 .update();
     }
