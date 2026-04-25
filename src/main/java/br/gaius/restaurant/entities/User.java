@@ -2,25 +2,26 @@ package br.gaius.restaurant.entities;
 
 import java.time.LocalDate;
 
-public abstract class User {
+public class User {
 
-    private final Long id;
-    private final String login;
-    private final String password;
-    private final String email;
-    private final String name;
-    private final String address;
-    private final LocalDate lastModified;
+    private Long id;
+    private String login;
+    private String password;
+    private String email;
+    private String name;
+    private String address;
+    private LocalDate lastModified;
+    Role role;
 
-    // construtor restrito ao nível de pacote
-    User(Long id, String login, String password, String email, String name, String address, LocalDate lastModified) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.email = email;
-        this.name = name;
-        this.address = address;
-        this.lastModified = lastModified;
+    private User(Builder builder) {
+        this.id = builder.id;
+        this.login = builder.login;
+        this.password = builder.password;
+        this.email = builder.email;
+        this.name = builder.name;
+        this.address = builder.address;
+        this.lastModified = builder.lastModified;
+        this.role = builder.role;
     }
 
     public Long getId() {
@@ -51,11 +52,9 @@ public abstract class User {
         return lastModified;
     }
 
-    public boolean passwordMatches(String oldPassword) {
-        return password.equals(oldPassword);
+    public Role getRole(){
+        return role;
     }
-    
-    public abstract String getType();
 
     @Override
     public int hashCode() {
@@ -63,11 +62,7 @@ public abstract class User {
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((login == null) ? 0 : login.hashCode());
-        result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((email == null) ? 0 : email.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((address == null) ? 0 : address.hashCode());
-        result = prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
         return result;
     }
 
@@ -90,38 +85,96 @@ public abstract class User {
                 return false;
         } else if (!login.equals(other.login))
             return false;
-        if (password == null) {
-            if (other.password != null)
-                return false;
-        } else if (!password.equals(other.password))
-            return false;
         if (email == null) {
             if (other.email != null)
                 return false;
         } else if (!email.equals(other.email))
-            return false;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (address == null) {
-            if (other.address != null)
-                return false;
-        } else if (!address.equals(other.address))
-            return false;
-        if (lastModified == null) {
-            if (other.lastModified != null)
-                return false;
-        } else if (!lastModified.equals(other.lastModified))
             return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return String.format("User[id = %d, login = %s, password = %s, email = %s, name = %s, address = %s, lastModified = %s, userType = %s]",
-            getId(), getLogin(), getPassword(), getEmail(), getName(), getAddress(), getLastModified(), getType()
-        );
+        return "User [id=" + id + ", login=" + login + ", password=" + password + ", email=" + email + ", name=" + name
+                + ", address=" + address + ", lastModified=" + lastModified + ", role=" + role + "]";
+    }
+
+    public static Builder builder(){
+        return new Builder();
+    }
+
+    public static Builder builder(User user){
+        return new Builder(user);
+    }
+
+    public static class Builder {
+
+        private Long id;
+        private String login;
+        private String password;
+        private String email;
+        private String name;
+        private String address;
+        private LocalDate lastModified;
+        private Role role;
+
+        private Builder() {
+
+        }
+
+        private Builder(User user) {
+            this.id = user.getId();
+            this.login = user.getLogin();
+            this.email = user.getEmail();
+            this.password = user.getPassword();
+            this.address = user.getAddress();
+            this.lastModified = user.getLastModified();
+            this.role = user.getRole();
+
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withLogin(String login) {
+            this.login = login;
+            return this;
+        }
+
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder withEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withAddress(String address) {
+            this.address = address;
+            return this;
+        }
+
+        public Builder withLastModified(LocalDate lastModified) {
+            this.lastModified = lastModified;
+            return this;
+        }
+
+        public Builder withRole(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public User build(){
+            return new User(this);
+        }
     }
 }
