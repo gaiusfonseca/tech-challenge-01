@@ -1,0 +1,80 @@
+package br.gaius.restaurant.entities;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import br.gaius.restaurant.dtos.ChangePassword;
+import br.gaius.restaurant.dtos.CreateUser;
+import br.gaius.restaurant.dtos.UpdateUser;
+
+public class UserMapperTest {
+
+    private UserMapper mapper;
+
+    @BeforeEach
+    void setup() {
+        mapper = new UserMapper();
+    }
+
+    @Test
+    void shouldCreateUserFromCreateDTO() {
+        // given
+        CreateUser dto = new CreateUser("joaquim5070", "y2Ne57P", "joa.quim@test.com.br", "joaquim",
+                "rua das pitobeiras, 3914", Role.OWNER);
+        User expected = User.builder()
+                .withLogin("joaquim5070")
+                .withPassword("y2Ne57P")
+                .withEmail("joa.quim@test.com.br")
+                .withName("joaquim")
+                .withAddress("rua das pitobeiras, 3914")
+                .withRole(Role.OWNER)
+                .build();
+
+        // when
+        User actual = mapper.from(dto);
+
+        // then
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldCreateUserFromUpdateDTO() {
+        // given
+        User expected = User.builder()
+                .withId(7L)
+                .withLogin("joaquim5070")
+                .withEmail("joa.quim@test.com.br")
+                .withName("joaquim")
+                .withAddress("rua das pitobeiras, 3914")
+                .withRole(Role.OWNER)
+                .build();
+
+        UpdateUser dto = new UpdateUser(7L, "joaquim5070", "joa.quim@test.com.br", "joaquim",
+                "rua das pitobeiras, 3914", Role.OWNER);
+
+        // when
+        User actual = mapper.from(dto);
+
+        // then
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldCreateUserFromChangePasswordDTO() {
+        // given
+        User expceted = User.builder()
+            .withLogin("joaquim5070")
+            .withPassword("y2Ne57P")
+        .build();
+
+        ChangePassword dto = new ChangePassword("joaquim5070", "y2Ne57P", "2LzzYl8q");
+
+        // when
+        User actual = mapper.from(dto);
+
+        // then
+        assertEquals(expceted, actual);
+    }
+}
