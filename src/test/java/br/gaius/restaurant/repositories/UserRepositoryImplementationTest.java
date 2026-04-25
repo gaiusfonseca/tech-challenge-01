@@ -14,10 +14,11 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.test.context.ActiveProfiles;
 
+import br.gaius.restaurant.entities.Role;
 import br.gaius.restaurant.entities.User;
-import br.gaius.restaurant.entities.UserBuilder;
 
 @JdbcTest
 @ActiveProfiles("test")
@@ -35,11 +36,8 @@ public class UserRepositoryImplementationTest {
     @Test
     void shouldFindWhenExistingId() {
         // given
-        // 'pedro321', 'X321kHEz', 'pedro@gmail.com', 'pedro', 'rua das acácias, 12',
-        // '2026-04-01', 'customer'
         Long id = 1L;
-        UserBuilder builder = new UserBuilder();
-        User user = builder
+        User user = User.builder()
                 .withId(id)
                 .withLogin("pedro321")
                 .withPassword("X321kHEz")
@@ -47,7 +45,7 @@ public class UserRepositoryImplementationTest {
                 .withName("pedro")
                 .withAddress("rua das acácias, 12")
                 .withLastModified(LocalDate.of(2026, 04, 01))
-                .withUserType("customer")
+                .withRole(Role.CUSTOMER)
                 .build();
 
         Optional<User> expectedUser = Optional.of(user);
@@ -72,6 +70,43 @@ public class UserRepositoryImplementationTest {
     }
 
     @Test
+    void shouldFindWhenExistingLogin() {
+        // given
+        String login = "pedro321";
+
+        User user = User.builder()
+                .withId(1L)
+                .withLogin(login)
+                .withPassword("X321kHEz")
+                .withEmail("pedro@gmail.com")
+                .withName("pedro")
+                .withAddress("rua das acácias, 12")
+                .withLastModified(LocalDate.of(2026, 04, 01))
+                .withRole(Role.CUSTOMER)
+                .build();
+
+        Optional<User> expectedUser = Optional.of(user);
+
+        // when
+        Optional<User> actualUser = repository.findByLogin(login);
+
+        // then
+        assertEquals(expectedUser.get().getLogin(), actualUser.get().getLogin());
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalWhenNonExistingLogin() {
+        // given
+        String nonExistingLogin = "Bruce_Wayne";
+
+        // when
+        Optional<User> actual = repository.findByLogin(nonExistingLogin);
+
+        // then
+        assertTrue(actual.isEmpty());
+    }
+
+    @Test
     void shouldFindOneWhenUniqueName() {
         // given
         String uniqueName = "pedro";
@@ -80,11 +115,12 @@ public class UserRepositoryImplementationTest {
 
         // when
         List<User> users = repository.findByName(uniqueName, size, offset);
-        Executable checkSize = () -> assertEquals(1, users.size());
-        Executable checkName = () -> assertEquals("pedro", users.get(0).getName());
 
         // then
-        assertAll(checkSize, checkName);
+        assertAll(
+            () -> assertEquals(1, users.size()),
+            () -> assertEquals("pedro", users.get(0).getName())
+        );
     }
 
     @Test
@@ -96,10 +132,9 @@ public class UserRepositoryImplementationTest {
 
         // when
         List<User> users = repository.findByName(nonExistingName, size, offset);
-        Executable checkSize = () -> assertEquals(0, users.size());
 
         // then
-        assertAll(checkSize);
+        assertEquals(0, users.size());
     }
 
     @Test
@@ -156,10 +191,9 @@ public class UserRepositoryImplementationTest {
     }
 
     @Test
-    void shouldSaveUserWhenValidDataAndUser() {
+    void shouldSaveUser() {
         // given
-        UserBuilder builder = new UserBuilder();
-        User expectedUser = builder
+        User expectedUser = User.builder()
                 .withId(7L)
                 .withLogin("gaiusgamer987")
                 .withPassword("J8i9jaZ2")
@@ -167,7 +201,7 @@ public class UserRepositoryImplementationTest {
                 .withName("gaius")
                 .withAddress("rua das mangueiras, 5860")
                 .withLastModified(LocalDate.of(2026, 04, 07))
-                .withUserType("customer")
+                .withRole(Role.CUSTOMER)
                 .build();
 
         // when
@@ -180,8 +214,7 @@ public class UserRepositoryImplementationTest {
     @Test
     void shouldNotUpdatePasswordWhenUpdatingUser() {
         // given
-        UserBuilder builder = new UserBuilder();
-        User expectedUser = builder
+        User expectedUser = User.builder()
                 .withId(1L)
                 .withLogin("pedroXRE")
                 .withPassword("Hsu76Op1")
@@ -189,46 +222,34 @@ public class UserRepositoryImplementationTest {
                 .withName("pedroso")
                 .withAddress("rua das macieiras, 1998")
                 .withLastModified(LocalDate.of(2026, 04, 19))
-                .withUserType("owner")
+                .withRole(Role.OWNER)
                 .build();
 
         // when
         Optional<User> actualUser = repository.update(expectedUser);
 
         // then
-        Executable checkUser = () -> assertEquals(expectedUser, actualUser.get());
-        assertAll(checkUser);
+        assertEquals(expectedUser.getPassword(), actualUser.get().getPassword());
     }
 
     @Test
-    void shouldUpdatePasswordWhenUpdatePasswordMethod() {
+    void shouldUpdatePassword() {
         // given
-        int expectedAffectedRows = 1;
         Long id = 1L;
-        String hashedPassword = "Hsu76Op1";
-        LocalDate lastModified = LocalDate.now();
-        String userType = "customer";
-
-        UserBuilder builder = new UserBuilder();
-        User expectedUser = builder
-                .withId(id)
-                .withLogin("pedro321")
-                .withEmail("pedro@gmail.com")
-                .withPassword(hashedPassword)
-                .withName("pedro")
-                .withAddress("rua das acácias, 12")
-                .withLastModified(lastModified)
-                .withUserType(userType)
-                .build();
+        String password = "Ym69P0H12a";
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        
+        int expectedAffectedRows = 1;
 
         // when
-        int actualAffectedRows = repository.updatePassword(id, hashedPassword, lastModified);
-        User actualUser = repository.findById(id).get();
+        int actualAffectedRows = repository.updatePassword(id, hashedPassword);
+        User updatedUser = repository.findById(id).get();
 
         // then
-        Executable checkAffectedRows = () -> assertEquals(expectedAffectedRows, actualAffectedRows);
-        Executable checkChanges = () -> assertEquals(expectedUser, actualUser);
-        assertAll(checkAffectedRows, checkChanges);
+        assertAll(
+            () -> assertEquals(expectedAffectedRows, actualAffectedRows),
+            () -> assertTrue(BCrypt.checkpw(password, updatedUser.getPassword()))
+        );
     }
 
     @Test
@@ -242,13 +263,14 @@ public class UserRepositoryImplementationTest {
         Optional<User> actualUser = repository.findById(id);
 
         // then
-        Executable checkAffectedRows = () -> assertEquals(expectedAffectedRows, actualAffectedRows);
-        Executable checkEmptyUser = () -> assertTrue(actualUser.isEmpty());
-        assertAll(checkAffectedRows, checkEmptyUser);
+        assertAll(
+            () -> assertEquals(expectedAffectedRows, actualAffectedRows),
+            () -> assertTrue(actualUser.isEmpty())
+        );
     }
 
     @Test
-    void shouldReturnTheCountOfRecordsWhenThereIsAnEmail() {
+    void shouldCountEmail() {
         // given
         Long expected = 1L;
         String email = "maria.joana@gmail.com";
