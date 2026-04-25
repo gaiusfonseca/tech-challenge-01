@@ -1,8 +1,5 @@
 package br.gaius.restaurant.services;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
