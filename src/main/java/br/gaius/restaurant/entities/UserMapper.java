@@ -2,14 +2,14 @@ package br.gaius.restaurant.entities;
 
 import org.springframework.stereotype.Component;
 
-import br.gaius.restaurant.dtos.ChangePassword;
-import br.gaius.restaurant.dtos.CreateUser;
-import br.gaius.restaurant.dtos.UpdateUser;
+import br.gaius.restaurant.dtos.ChangePasswordDTO;
+import br.gaius.restaurant.dtos.CreateUserDTO;
+import br.gaius.restaurant.dtos.UpdateUserDTO;
 
 @Component
 public class UserMapper {
 
-    public User from(CreateUser body) {
+    public User from(CreateUserDTO body) {
         return User.builder()
                 .withLogin(body.login())
                 .withPassword(body.password())
@@ -20,7 +20,7 @@ public class UserMapper {
                 .build();
     }
 
-    public User from(UpdateUser body) {
+    public User from(UpdateUserDTO body) {
         return User.builder()
                 .withId(body.id())
                 .withLogin(body.login())
@@ -31,7 +31,7 @@ public class UserMapper {
                 .build();
     }
 
-    public User from(ChangePassword body) {
+    public User from(ChangePasswordDTO body) {
         return User.builder()
                 .withLogin(body.login())
                 .withPassword(body.oldPassword())
