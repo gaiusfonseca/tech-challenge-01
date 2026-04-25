@@ -10,6 +10,8 @@ public interface UserRepository {
 
     public Optional<User> findById(Long id);
 
+    public Optional<User> findByLogin(String login);
+    
     public List<User> findByName(String name, int size, int offset);
 
     public List<User> findAll(int size, int offset);
@@ -18,7 +20,7 @@ public interface UserRepository {
 
     public Optional<User> update(User user);
 
-    public int updatePassword(Long id, String hashedPassword, LocalDate lastModified);
+    public int updatePassword(Long id, String hashedPassword);
 
     public int delete(Long id);
 
