@@ -23,6 +23,6 @@ public interface UserRepository {
 
     public int delete(Long id);
 
-    public Long count(String textField, String value);
+    public Long count(String fieldName, String value);
 
 }

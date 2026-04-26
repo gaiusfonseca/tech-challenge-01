@@ -134,14 +134,14 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public Long count(String textField, String value) {
+    public Long count(String fieldName, String value) {
 
-        if(!textField.equals("email") && !textField.equals("login")) {
-            throw new UnsupportedFieldException(textField);
+        if(!fieldName.equals("email") && !fieldName.equals("login")) {
+            throw new UnsupportedFieldException(fieldName);
         }
 
         StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM `user` WHERE ");
-        sb.append(textField);
+        sb.append(fieldName);
         sb.append(" = :value;");
         String sqlStatement = sb.toString();
 
