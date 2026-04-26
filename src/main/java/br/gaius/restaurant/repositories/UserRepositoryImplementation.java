@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import br.gaius.restaurant.entities.User;
+import br.gaius.restaurant.exceptions.UnsupportedFieldException;
 
 @Repository
 public class UserRepositoryImplementation implements UserRepository {
@@ -133,12 +134,20 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public Long count(String email) {
-        String sqlStatement = "SELECT COUNT(*) FROM `user` WHERE email = :email;";
+    public Long count(String textField, String value) {
+
+        if(!textField.equals("email") && !textField.equals("login")) {
+            throw new UnsupportedFieldException(textField);
+        }
+
+        StringBuilder sb = new StringBuilder("SELECT COUNT(*) FROM `user` WHERE ");
+        sb.append(textField);
+        sb.append(" = :value;");
+        String sqlStatement = sb.toString();
 
         return jdbcClient
                 .sql(sqlStatement)
-                .param("email", email)
+                .param("value", value)
                 .query(Long.class)
                 .single();
     }
