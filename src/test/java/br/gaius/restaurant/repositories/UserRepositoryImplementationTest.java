@@ -2,6 +2,7 @@ package br.gaius.restaurant.repositories;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import br.gaius.restaurant.entities.Role;
 import br.gaius.restaurant.entities.User;
+import br.gaius.restaurant.exceptions.UnsupportedFieldException;
 
 @JdbcTest
 @ActiveProfiles("test")
@@ -273,12 +275,54 @@ public class UserRepositoryImplementationTest {
     void shouldCountEmail() {
         // given
         Long expected = 1L;
+        String textField = "email";
         String email = "maria.joana@gmail.com";
 
         // when
-        Long actual = repository.count(email);
+        Long actual = repository.count(textField, email);
 
         // then
         assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldCountWhenEmailField() {
+        // given
+        Long expected = 1L;
+        String textField = "email";
+        String value = "maria.joana@gmail.com";
+
+        // when
+        Long actual = repository.count(textField, value);
+
+        // then
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldCountWhenLoginField() {
+        // given
+        Long expected = 1L;
+        String textField = "login";
+        String value = "maria2020";
+
+        // when
+        Long actual = repository.count(textField, value);
+
+        // then
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void shouldThrowUnsupportedFieldExceptionWhenAnotherString() {
+        // given
+        String textField = "name";
+        String value = "maria";
+
+        // when
+        Executable count = () -> repository.count(textField, value);
+
+        // then
+        assertThrows(UnsupportedFieldException.class, count);
     }
 }
