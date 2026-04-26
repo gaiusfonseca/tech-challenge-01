@@ -260,7 +260,7 @@ public class UserServiceTest {
         when(repository.findByLogin(dto.login())).thenReturn(Optional.of(user));
 
         // when
-        service.changePassword(dto);
+        service.updatePassword(dto);
 
         // then
         verify(repository).updatePassword(eq(user.getId()), anyString());
