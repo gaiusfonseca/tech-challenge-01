@@ -13,8 +13,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.test.context.ActiveProfiles;
 
+import br.gaius.restaurant.dtos.ChangePasswordDTO;
 import br.gaius.restaurant.dtos.CreateUserDTO;
 import br.gaius.restaurant.dtos.UpdateUserDTO;
 import br.gaius.restaurant.entities.Role;
@@ -248,6 +250,21 @@ public class UserServiceTest {
         // then
         assertThrows(DuplicatedLoginException.class, updateWithDuplicatedLogin);
         verify(repository).count(fieldName, duplicatedLogin);
+    }
+
+    @Test
+    void shouldSendHashedPassword() {
+        // given
+        ChangePasswordDTO dto = new ChangePasswordDTO("joaoBigBoss", "udWP50kX", "r1zjdiSm");
+        User user = mapper.from(dto);
+        
+        when(repository.findByLogin(dto.login())).thenReturn(Optional.of(user));
+
+        // when
+        service.changePassword(dto);
+
+        // then
+        verify(repository).updatePassword(eq(user.getId()), anyString());
     }
 
     @Test
