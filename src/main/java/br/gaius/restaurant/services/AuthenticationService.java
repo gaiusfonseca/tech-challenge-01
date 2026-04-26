@@ -17,15 +17,15 @@ public class AuthenticationService {
         this.repository = repository;
     }
 
-    public void authenticate(User candidate){
+    public void authenticate(User candidate) {
         User user = repository.findByLogin(candidate.getLogin())
-            .orElseThrow(() -> new UserNotFoundException(candidate.getLogin()));
+                .orElseThrow(() -> new UserNotFoundException(candidate.getLogin()));
 
-        if(BCrypt.checkpw(candidate.getPassword(), user.getPassword()) == false){
-            throw new InvalidPasswordException(candidate.getLogin(), candidate.getPassword());
+        if (BCrypt.checkpw(candidate.getPassword(), user.getPassword())) {
+            return;
         }
 
-        return;
+        throw new InvalidPasswordException(candidate.getLogin(), candidate.getPassword());
     }
 
 }
