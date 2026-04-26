@@ -100,7 +100,7 @@ public class UserService {
         repository.delete(id);
     }
 
-    public void changePassword(ChangePasswordDTO dto) {
+    public void updatePassword(ChangePasswordDTO dto) {
         User user = repository.findByLogin(dto.login()).get();
 
         String hashedPassword = BCrypt.hashpw(dto.newPassword(), BCrypt.gensalt());
