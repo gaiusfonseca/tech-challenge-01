@@ -52,7 +52,7 @@ public class UserMapperTest {
                 .withRole(Role.OWNER)
                 .build();
 
-        UpdateUserDTO dto = new UpdateUserDTO(id, "joaquim5070", "joa.quim@test.com.br", "joaquim",
+        UpdateUserDTO dto = new UpdateUserDTO("joaquim5070", "joa.quim@test.com.br", "joaquim",
                 "rua das pitombeiras, 3914", Role.OWNER);
 
         // when
