@@ -56,13 +56,13 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping(Routes.WITH_ID)
+    @PostMapping
     public ResponseEntity<Void> save(@RequestBody CreateUserDTO dto) {
         userService.save(dto);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping
+    @PutMapping(Routes.WITH_ID)
     public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody UpdateUserDTO dto) {
         userService.update(id, dto);
         return ResponseEntity.noContent().build();
