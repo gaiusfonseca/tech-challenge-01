@@ -254,13 +254,14 @@ public class UserServiceTest {
     @Test
     void shouldSendHashedPassword() {
         // given
-        ChangePasswordDTO dto = new ChangePasswordDTO("joaoBigBoss", "udWP50kX", "r1zjdiSm");
-        User user = mapper.from(dto);
+        Long id = 4L;
+        ChangePasswordDTO dto = new ChangePasswordDTO("udWP50kX", "r1zjdiSm");
+        User user = mapper.from(id, dto);
         
-        when(repository.findByLogin(dto.login())).thenReturn(Optional.of(user));
+        when(repository.findById(id)).thenReturn(Optional.of(user));
 
         // when
-        service.updatePassword(dto);
+        service.updatePassword(id, dto);
 
         // then
         verify(repository).updatePassword(eq(user.getId()), anyString());
