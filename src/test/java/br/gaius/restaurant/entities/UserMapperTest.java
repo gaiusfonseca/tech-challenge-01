@@ -42,20 +42,21 @@ public class UserMapperTest {
     @Test
     void shouldCreateUserFromUpdateDTO() {
         // given
+        Long id = 7L;
         User expected = User.builder()
-                .withId(7L)
+                .withId(id)
                 .withLogin("joaquim5070")
                 .withEmail("joa.quim@test.com.br")
                 .withName("joaquim")
-                .withAddress("rua das pitobeiras, 3914")
+                .withAddress("rua das pitombeiras, 3914")
                 .withRole(Role.OWNER)
                 .build();
 
-        UpdateUserDTO dto = new UpdateUserDTO(7L, "joaquim5070", "joa.quim@test.com.br", "joaquim",
-                "rua das pitobeiras, 3914", Role.OWNER);
+        UpdateUserDTO dto = new UpdateUserDTO(id, "joaquim5070", "joa.quim@test.com.br", "joaquim",
+                "rua das pitombeiras, 3914", Role.OWNER);
 
         // when
-        User actual = mapper.from(dto);
+        User actual = mapper.from(id, dto);
 
         // then
         assertEquals(expected, actual);
