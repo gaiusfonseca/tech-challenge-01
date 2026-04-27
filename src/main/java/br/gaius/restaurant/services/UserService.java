@@ -82,8 +82,8 @@ public class UserService {
         return repository.save(user).orElseThrow();
     }
 
-    public User update(UpdateUserDTO dto) {
-        User user = mapper.from(dto);
+    public User update(Long id, UpdateUserDTO dto) {
+        User user = mapper.from(id, dto);
 
         if(isDuplicatedEmail(dto.email())){
             throw new DuplicatedEmailException(dto.email());
