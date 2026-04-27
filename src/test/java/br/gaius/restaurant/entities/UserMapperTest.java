@@ -64,15 +64,16 @@ public class UserMapperTest {
     @Test
     void shouldCreateUserFromChangePasswordDTO() {
         // given
+        Long id = 7L;
         User expceted = User.builder()
-            .withLogin("joaquim5070")
+            .withId(id)
             .withPassword("y2Ne57P")
         .build();
 
-        ChangePasswordDTO dto = new ChangePasswordDTO("joaquim5070", "y2Ne57P", "2LzzYl8q");
+        ChangePasswordDTO dto = new ChangePasswordDTO("y2Ne57P", "2LzzYl8q");
 
         // when
-        User actual = mapper.from(dto);
+        User actual = mapper.from(id, dto);
 
         // then
         assertEquals(expceted, actual);
