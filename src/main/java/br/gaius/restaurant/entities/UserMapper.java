@@ -20,9 +20,9 @@ public class UserMapper {
                 .build();
     }
 
-    public User from(UpdateUserDTO body) {
+    public User from(Long id, UpdateUserDTO body) {
         return User.builder()
-                .withId(body.id())
+                .withId(id)
                 .withLogin(body.login())
                 .withEmail(body.email())
                 .withName(body.name())
