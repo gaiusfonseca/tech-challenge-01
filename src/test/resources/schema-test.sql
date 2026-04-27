@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS `USER`(
     `name` VARCHAR(40) NOT NULL,
     `address` VARCHAR(255),
     last_modified DATE NOT NULL,
-    role VARCHAR(40) NOT NULL
+    `role` VARCHAR(40) NOT NULL
 );
