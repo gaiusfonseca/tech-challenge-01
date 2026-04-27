@@ -31,9 +31,9 @@ public class UserMapper {
                 .build();
     }
 
-    public User from(ChangePasswordDTO body) {
+    public User from(Long id, ChangePasswordDTO body) {
         return User.builder()
-                .withLogin(body.login())
+                .withId(id)
                 .withPassword(body.oldPassword())
                 .build();
     }
