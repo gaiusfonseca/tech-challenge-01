@@ -199,7 +199,7 @@ public class UserServiceTest {
         // given
         Long id = 7L;
 
-        UpdateUserDTO dto = new UpdateUserDTO(id, "jacintoXT", "jacinto@test.com.br", "jacinto",
+        UpdateUserDTO dto = new UpdateUserDTO("jacintoXT", "jacinto@test.com.br", "jacinto",
                 "rua dos pés de jaca, 146", Role.OWNER);
 
         User user = mapper.from(id, dto);
@@ -220,7 +220,7 @@ public class UserServiceTest {
         String fieldName = "email";
         String duplicatedEmail = "pedro@gmail.com";
 
-        UpdateUserDTO dto = new UpdateUserDTO(id, "jacintoXT", duplicatedEmail, "jacinto",
+        UpdateUserDTO dto = new UpdateUserDTO("jacintoXT", duplicatedEmail, "jacinto",
                 "rua dos pés de jaca, 146", Role.OWNER);
 
         when(repository.count(fieldName, duplicatedEmail)).thenReturn(1L);
@@ -240,7 +240,7 @@ public class UserServiceTest {
         String fieldName = "login";
         String duplicatedLogin = "pedro321";
 
-        UpdateUserDTO dto = new UpdateUserDTO(id, duplicatedLogin, "jacinto@test.com.br", "jacinto",
+        UpdateUserDTO dto = new UpdateUserDTO(duplicatedLogin, "jacinto@test.com.br", "jacinto",
                 "rua dos pés de jaca, 146", Role.OWNER);
 
         when(repository.count(fieldName, duplicatedLogin)).thenReturn(1L);
