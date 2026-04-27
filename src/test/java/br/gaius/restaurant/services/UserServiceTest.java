@@ -202,12 +202,12 @@ public class UserServiceTest {
         UpdateUserDTO dto = new UpdateUserDTO(id, "jacintoXT", "jacinto@test.com.br", "jacinto",
                 "rua dos pés de jaca, 146", Role.OWNER);
 
-        User user = mapper.from(dto);
+        User user = mapper.from(id, dto);
 
         when(repository.update(user)).thenReturn(Optional.of(user));
 
         // when
-        service.update(dto);
+        service.update(id, dto);
 
         // then
         verify(repository).update(user);
@@ -216,16 +216,17 @@ public class UserServiceTest {
     @Test
     void shouldThrowDuplicatedEmailExceptionWhenDuplicatedEmail() {
         // given
+        Long id = 7L;
         String fieldName = "email";
         String duplicatedEmail = "pedro@gmail.com";
 
-        UpdateUserDTO dto = new UpdateUserDTO(7L, "jacintoXT", duplicatedEmail, "jacinto",
+        UpdateUserDTO dto = new UpdateUserDTO(id, "jacintoXT", duplicatedEmail, "jacinto",
                 "rua dos pés de jaca, 146", Role.OWNER);
 
         when(repository.count(fieldName, duplicatedEmail)).thenReturn(1L);
 
         // when
-        Executable updateWithDuplicatedEmail = () -> service.update(dto);
+        Executable updateWithDuplicatedEmail = () -> service.update(id, dto);
 
         // then
         assertThrows(DuplicatedEmailException.class, updateWithDuplicatedEmail);
@@ -235,16 +236,17 @@ public class UserServiceTest {
     @Test
     void shouldThrowDuplicatedLoginExceptionWhenDuplicatedLogin() {
         // given
+        Long id = 7L;
         String fieldName = "login";
         String duplicatedLogin = "pedro321";
 
-        UpdateUserDTO dto = new UpdateUserDTO(7L, duplicatedLogin, "jacinto@test.com.br", "jacinto",
+        UpdateUserDTO dto = new UpdateUserDTO(id, duplicatedLogin, "jacinto@test.com.br", "jacinto",
                 "rua dos pés de jaca, 146", Role.OWNER);
 
         when(repository.count(fieldName, duplicatedLogin)).thenReturn(1L);
 
         // when
-        Executable updateWithDuplicatedLogin = () -> service.update(dto);
+        Executable updateWithDuplicatedLogin = () -> service.update(id, dto);
 
         // then
         assertThrows(DuplicatedLoginException.class, updateWithDuplicatedLogin);
