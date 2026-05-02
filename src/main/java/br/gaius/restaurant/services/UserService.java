@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import br.gaius.restaurant.dtos.ChangePasswordDTO;
 import br.gaius.restaurant.dtos.CreateUserDTO;
 import br.gaius.restaurant.dtos.UpdateUserDTO;
+import br.gaius.restaurant.dtos.UserResponseDTO;
 import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.entities.UserMapper;
 import br.gaius.restaurant.exceptions.DuplicatedEmailException;
@@ -26,11 +27,13 @@ public class UserService {
         this.mapper = mapper;
     }
 
-    public Optional<User> findById(Long id) {
-        return repository.findById(id);
+    public Optional<UserResponseDTO> findById(Long id) {
+        Optional<User> possibleUser = repository.findById(id);
+        UserResponseDTO dto = mapper.to(possibleUser.orElse(null));
+        return Optional.ofNullable(dto);
     }
 
-    public List<User> findByName(String name, int page, int size) {
+    public List<UserResponseDTO> findByName(String name, int page, int size) {
         if (page < 1){
             page = 1;
         }
@@ -40,16 +43,19 @@ public class UserService {
         }
 
         int offset = getOffset(page, size);
-        return repository.findByName(name, size, offset);
+        List<User> users = repository.findByName(name, size, offset);
+        List<UserResponseDTO> dtos = users.stream().map(user -> mapper.to(user)).toList();
+
+        return dtos;
     }
 
-    public List<User> findByName(String name) {
+    public List<UserResponseDTO> findByName(String name) {
         int page = 1;
         int size = 10;
         return findByName(name, page, size);
     }
 
-    public List<User> findAll(int page, int size) {
+    public List<UserResponseDTO> findAll(int page, int size) {
         if (page < 1){
             page = 1;
         }
@@ -59,41 +65,50 @@ public class UserService {
         }
 
         int offset = getOffset(page, size);
-        return repository.findAll(size, offset);
+        List<User> users = repository.findAll(size, offset);
+        List<UserResponseDTO> dtos = users.stream().map(user -> mapper.to(user)).toList();
+
+        return dtos;
     }
 
-    public List<User> findAll() {
+    public List<UserResponseDTO> findAll() {
         int page = 1;
         int size = 10;
         return findAll(page, size);
     }
 
-    public User save(CreateUserDTO dto) {
-        User user = mapper.from(dto);
+    public UserResponseDTO save(CreateUserDTO createDTO) {
+        User user = mapper.from(createDTO);
 
-        if(isDuplicatedEmail(dto.email())){
-            throw new DuplicatedEmailException(dto.email());
+        if(isDuplicatedEmail(createDTO.email())){
+            throw new DuplicatedEmailException(createDTO.email());
         }
 
-        if(isDuplicatedLogin(dto.login())){
-            throw new DuplicatedLoginException(dto.login());
+        if(isDuplicatedLogin(createDTO.login())){
+            throw new DuplicatedLoginException(createDTO.login());
         }
 
-        return repository.save(user).orElseThrow();
+        user = repository.save(user).orElseThrow();
+        UserResponseDTO responseDTO = mapper.to(user);
+
+        return responseDTO;
     }
 
-    public User update(Long id, UpdateUserDTO dto) {
-        User user = mapper.from(id, dto);
+    public UserResponseDTO update(Long id, UpdateUserDTO updateDTO) {
+        User user = mapper.from(id, updateDTO);
 
-        if(isDuplicatedEmail(dto.email())){
-            throw new DuplicatedEmailException(dto.email());
+        if(isDuplicatedEmail(updateDTO.email())){
+            throw new DuplicatedEmailException(updateDTO.email());
         }
 
-        if(isDuplicatedLogin(dto.login())){
-            throw new DuplicatedLoginException(dto.login());
+        if(isDuplicatedLogin(updateDTO.login())){
+            throw new DuplicatedLoginException(updateDTO.login());
         }
 
-        return repository.update(user).orElseThrow();
+        user = repository.update(user).orElseThrow();
+        UserResponseDTO responseDTO = mapper.to(user);
+
+        return responseDTO;
     }
 
     public void delete(Long id) {
