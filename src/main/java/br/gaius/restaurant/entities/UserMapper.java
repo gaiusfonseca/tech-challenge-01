@@ -39,7 +39,7 @@ public class UserMapper {
                 .build();
     }
 
-    public UserResponseDTO toResponseDTO(User user) {
+    public UserResponseDTO to(User user) {
         return new UserResponseDTO(user.getId(), user.getLogin(), user.getEmail(), user.getName(), user.getAddress(),
                 user.getLastModified(), user.getRole());
     }
