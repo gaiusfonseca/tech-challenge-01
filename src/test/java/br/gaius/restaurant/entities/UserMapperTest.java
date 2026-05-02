@@ -2,12 +2,15 @@ package br.gaius.restaurant.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import br.gaius.restaurant.dtos.ChangePasswordDTO;
 import br.gaius.restaurant.dtos.CreateUserDTO;
 import br.gaius.restaurant.dtos.UpdateUserDTO;
+import br.gaius.restaurant.dtos.UserResponseDTO;
 
 public class UserMapperTest {
 
@@ -67,9 +70,9 @@ public class UserMapperTest {
         // given
         Long id = 7L;
         User expceted = User.builder()
-            .withId(id)
-            .withPassword("y2Ne57P")
-        .build();
+                .withId(id)
+                .withPassword("y2Ne57P")
+                .build();
 
         ChangePasswordDTO dto = new ChangePasswordDTO("y2Ne57P", "2LzzYl8q");
 
@@ -78,5 +81,38 @@ public class UserMapperTest {
 
         // then
         assertEquals(expceted, actual);
+    }
+
+    @Test
+    void shouldCreateResponseDTOFromUser() {
+        // given
+        Long id = 7L;
+        String login = "mugiwara.luffy";
+        String password = "supersecret123";
+        String email = "luffy.strawhat@test.com";
+        String name = "luffy";
+        String address = "rua do rei dos piratas, 7";
+        LocalDate lastModified = LocalDate.now();
+        Role role = Role.CUSTOMER;
+
+        User user = User
+                .builder()
+                .withId(id)
+                .withLogin(login)
+                .withPassword(password)
+                .withEmail(email)
+                .withName(name)
+                .withAddress(address)
+                .withLastModified(lastModified)
+                .withRole(role)
+                .build();
+
+        UserResponseDTO expected = new UserResponseDTO(id, login, email, name, address, lastModified, role);
+
+        // when
+        UserResponseDTO actual = mapper.toResponseDTO(user);
+
+        // then
+        assertEquals(expected, actual);
     }
 }
