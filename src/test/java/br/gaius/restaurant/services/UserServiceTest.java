@@ -1,6 +1,9 @@
 package br.gaius.restaurant.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,16 +11,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.test.context.ActiveProfiles;
 
 import br.gaius.restaurant.dtos.ChangePasswordDTO;
 import br.gaius.restaurant.dtos.CreateUserDTO;
 import br.gaius.restaurant.dtos.UpdateUserDTO;
+import br.gaius.restaurant.dtos.UserResponseDTO;
 import br.gaius.restaurant.entities.Role;
 import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.entities.UserMapper;
@@ -42,14 +50,36 @@ public class UserServiceTest {
     @Test
     void shouldFindById() {
         // given
-        Long id = 1L;
-        when(repository.findById(id)).thenReturn(Optional.empty());
+        Long id = 7L;
+        String login = "mugiwara";
+        String password = "supersecretpass";
+        String email = "mugiwara.luffy@onepiece.com";
+        String name = "luffy";
+        String address = "rua do rei dos piratas, 7";
+        LocalDate lastModified = LocalDate.now();
+        Role role = Role.CUSTOMER;
+
+        User user = User.builder()
+                .withId(id)
+                .withLogin(login)
+                .withPassword(password)
+                .withEmail(email)
+                .withName(name)
+                .withAddress(address)
+                .withLastModified(lastModified)
+                .withRole(role)
+                .build();
+
+        when(repository.findById(id)).thenReturn(Optional.of(user));
+
+        Optional<UserResponseDTO> expectedDTO = Optional.of(mapper.to(user));
 
         // when
-        service.findById(id);
+        Optional<UserResponseDTO> actualDTO = service.findById(id);
 
         // then
-        verify(repository).findById(anyLong());
+        assertEquals(expectedDTO.get(), actualDTO.get());
+        verify(repository).findById(id);
     }
 
     @Test
@@ -60,10 +90,14 @@ public class UserServiceTest {
         int size = 10;
         int offset = 40;
 
+        when(repository.findByName(name, size, offset))
+                .thenReturn(List.of(User.builder().build(), User.builder().build()));
+
         // when
-        service.findByName(name, page, size);
+        List<UserResponseDTO> dtos = service.findByName(name, page, size);
 
         // then
+        assertEquals(2, dtos.size());
         verify(repository).findByName(anyString(), eq(size), eq(offset));
     }
 
@@ -77,10 +111,14 @@ public class UserServiceTest {
         int validSize = 10;
         int offset = 0;
 
+        when(repository.findByName(name, validSize, offset))
+                .thenReturn(List.of(User.builder().build(), User.builder().build()));
+
         // when
-        service.findByName(name, invalidPage, invalidSize);
+        List<UserResponseDTO> dtos = service.findByName(name, invalidPage, invalidSize);
 
         // then
+        assertEquals(2, dtos.size());
         verify(repository).findByName(anyString(), eq(validSize), eq(offset));
     }
 
@@ -91,10 +129,14 @@ public class UserServiceTest {
         int size = 10;
         int offset = 0;
 
+        when(repository.findByName(name, size, offset))
+                .thenReturn(List.of(User.builder().build(), User.builder().build()));
+
         // when
-        service.findByName(name);
+        List<UserResponseDTO> dtos = service.findByName(name);
 
         // then
+        assertEquals(2, dtos.size());
         verify(repository).findByName(anyString(), eq(size), eq(offset));
     }
 
@@ -105,10 +147,13 @@ public class UserServiceTest {
         int page = 5;
         int offset = 40;
 
+        when(repository.findAll(size, offset)).thenReturn(List.of());
+
         // when
-        service.findAll(page, size);
+        List<UserResponseDTO> dtos = service.findAll(page, size);
 
         // then
+        assertEquals(0, dtos.size());
         verify(repository).findAll(size, offset);
     }
 
@@ -121,10 +166,14 @@ public class UserServiceTest {
         int validSize = 10;
         int offset = 0;
 
+        when(repository.findAll(validSize, offset)).thenReturn(List.of(User.builder().build(), User.builder().build(),
+                User.builder().build(), User.builder().build(), User.builder().build(), User.builder().build()));
+
         // when
-        service.findAll(invalidPage, invalidSize);
+        List<UserResponseDTO> dtos = service.findAll(invalidPage, invalidSize);
 
         // then
+        assertEquals(6, dtos.size());
         verify(repository).findAll(validSize, offset);
     }
 
@@ -134,10 +183,14 @@ public class UserServiceTest {
         int size = 10;
         int offset = 0;
 
+        when(repository.findAll(size, offset)).thenReturn(List.of(User.builder().build(), User.builder().build(),
+                User.builder().build(), User.builder().build(), User.builder().build(), User.builder().build()));
+
         // when
-        service.findAll();
+        List<UserResponseDTO> dtos = service.findAll();
 
         // then
+        assertEquals(6, dtos.size());
         verify(repository).findAll(size, offset);
     }
 
@@ -145,18 +198,20 @@ public class UserServiceTest {
     void shouldSaveWhenNoDuplicateEmailAndLogin() {
         // given
         String notDuplicatedEmail = "jacinto@test.com.br";
-        CreateUserDTO dto = new CreateUserDTO("jacintoXT", "nqEag0T2", notDuplicatedEmail, "jacinto",
+        CreateUserDTO createDTO = new CreateUserDTO("jacintoXT", "nqEag0T2", notDuplicatedEmail, "jacinto",
                 "rua dos pés de jaca, 146", Role.OWNER);
 
-        User user = mapper.from(dto);
+        User user = mapper.from(createDTO);
         User userWithId = User.builder(user).withId(7L).build();
+        UserResponseDTO expected = mapper.to(userWithId);
 
         when(repository.save(user)).thenReturn(Optional.of(userWithId));
 
         // when
-        service.save(dto);
+        UserResponseDTO actual = service.save(createDTO);
 
         // then
+        assertEquals(expected, actual);
         verify(repository).save(user);
     }
 
@@ -203,13 +258,15 @@ public class UserServiceTest {
                 "rua dos pés de jaca, 146", Role.OWNER);
 
         User user = mapper.from(id, dto);
+        UserResponseDTO expected = mapper.to(user);
 
         when(repository.update(user)).thenReturn(Optional.of(user));
 
         // when
-        service.update(id, dto);
+        UserResponseDTO actual = service.update(id, dto);
 
         // then
+        assertEquals(expected, actual);
         verify(repository).update(user);
     }
 
@@ -257,16 +314,19 @@ public class UserServiceTest {
     void shouldSendHashedPassword() {
         // given
         Long id = 4L;
-        ChangePasswordDTO dto = new ChangePasswordDTO("udWP50kX", "r1zjdiSm");
-        User user = mapper.from(id, dto);
+        ChangePasswordDTO dto = new ChangePasswordDTO("c3ZpnpUq", "Wc78utXo");
+        User user = User.builder().withId(id).withPassword(dto.oldPassword()).build();
         
+        ArgumentCaptor<String> hashed = ArgumentCaptor.forClass(String.class);
+
         when(repository.findById(id)).thenReturn(Optional.of(user));
 
         // when
         service.updatePassword(id, dto);
 
         // then
-        verify(repository).updatePassword(eq(user.getId()), anyString());
+        verify(repository).updatePassword(eq(user.getId()), hashed.capture());
+        assertTrue(BCrypt.checkpw(dto.newPassword(), hashed.getValue()));
     }
 
     @Test
