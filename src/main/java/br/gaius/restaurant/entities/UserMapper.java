@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import br.gaius.restaurant.dtos.ChangePasswordDTO;
 import br.gaius.restaurant.dtos.CreateUserDTO;
 import br.gaius.restaurant.dtos.UpdateUserDTO;
+import br.gaius.restaurant.dtos.UserResponseDTO;
 
 @Component
 public class UserMapper {
@@ -36,6 +37,11 @@ public class UserMapper {
                 .withId(id)
                 .withPassword(body.oldPassword())
                 .build();
+    }
+
+    public UserResponseDTO toResponseDTO(User user) {
+        return new UserResponseDTO(user.getId(), user.getLogin(), user.getEmail(), user.getName(), user.getAddress(),
+                user.getLastModified(), user.getRole());
     }
 
 }
