@@ -110,7 +110,7 @@ public class UserMapperTest {
         UserResponseDTO expected = new UserResponseDTO(id, login, email, name, address, lastModified, role);
 
         // when
-        UserResponseDTO actual = mapper.toResponseDTO(user);
+        UserResponseDTO actual = mapper.to(user);
 
         // then
         assertEquals(expected, actual);
