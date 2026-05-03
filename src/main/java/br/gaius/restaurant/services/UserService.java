@@ -49,12 +49,6 @@ public class UserService {
         return dtos;
     }
 
-    public List<UserResponseDTO> findByName(String name) {
-        int page = 1;
-        int size = 10;
-        return findByName(name, page, size);
-    }
-
     public List<UserResponseDTO> findAll(int page, int size) {
         if (page < 1){
             page = 1;
@@ -69,12 +63,6 @@ public class UserService {
         List<UserResponseDTO> dtos = users.stream().map(user -> mapper.to(user)).toList();
 
         return dtos;
-    }
-
-    public List<UserResponseDTO> findAll() {
-        int page = 1;
-        int size = 10;
-        return findAll(page, size);
     }
 
     public UserResponseDTO save(CreateUserDTO createDTO) {
