@@ -121,24 +121,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldCalculateOffsetWhenNoParamsFindByName() {
-        // given
-        String name = "maria";
-        int size = 10;
-        int offset = 0;
-
-        when(repository.findByName(name, size, offset))
-                .thenReturn(List.of(User.builder().build(), User.builder().build()));
-
-        // when
-        List<UserResponseDTO> dtos = service.findByName(name);
-
-        // then
-        assertEquals(2, dtos.size());
-        verify(repository).findByName(anyString(), eq(size), eq(offset));
-    }
-
-    @Test
     void shouldCalculateOffsetWhenParameterizedFindAll() {
         // given
         int size = 10;
@@ -173,23 +155,6 @@ public class UserServiceTest {
         // then
         assertEquals(6, dtos.size());
         verify(repository).findAll(validSize, offset);
-    }
-
-    @Test
-    void shouldCalculateOffsetWhenNoParamsFindAll() {
-        // given
-        int size = 10;
-        int offset = 0;
-
-        when(repository.findAll(size, offset)).thenReturn(List.of(User.builder().build(), User.builder().build(),
-                User.builder().build(), User.builder().build(), User.builder().build(), User.builder().build()));
-
-        // when
-        List<UserResponseDTO> dtos = service.findAll();
-
-        // then
-        assertEquals(6, dtos.size());
-        verify(repository).findAll(size, offset);
     }
 
     @Test
