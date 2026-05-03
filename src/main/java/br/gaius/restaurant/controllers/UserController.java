@@ -1,5 +1,6 @@
 package br.gaius.restaurant.controllers;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,11 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.gaius.restaurant.dtos.ChangePasswordDTO;
 import br.gaius.restaurant.dtos.CreateUserDTO;
 import br.gaius.restaurant.dtos.UpdateUserDTO;
-import br.gaius.restaurant.entities.User;
+import br.gaius.restaurant.dtos.UserResponseDTO;
 import br.gaius.restaurant.services.UserService;
 
 @RestController
@@ -32,34 +34,31 @@ public class UserController {
     }
 
     @GetMapping(Routes.WITH_ID)
-    public ResponseEntity<Optional<User>> findById(@PathVariable Long id) {
-        Optional<User> user = userService.findById(id);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<Optional<UserResponseDTO>> findById(@PathVariable Long id) {
+        Optional<UserResponseDTO> dto = userService.findById(id);
+        return ResponseEntity.ok(dto);
     }
 
-    @GetMapping(Routes.WITH_NAME)
-    public ResponseEntity<List<User>> findByName(
-            @RequestParam String name,
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> findAll(
+            @RequestParam(required = false) String name,
             @RequestParam int page,
             @RequestParam int size) {
 
-        List<User> users = userService.findByName(name, page, size);
-        return ResponseEntity.ok(users);
-    }
+        if(name == null || name.isBlank()){
+            List<UserResponseDTO> dtos = userService.findAll(page, size);
+            return ResponseEntity.ok(dtos);
+        }
 
-    @GetMapping(Routes.WITH_PAGING)
-    public ResponseEntity<List<User>> findAll(
-            @RequestParam int page,
-            @RequestParam int size) {
-
-        List<User> users = userService.findAll(page, size);
-        return ResponseEntity.ok(users);
+        List<UserResponseDTO> dtos = userService.findByName(name, page, size);
+        return ResponseEntity.ok(dtos);
     }
 
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody CreateUserDTO dto) {
-        userService.save(dto);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> save(@RequestBody CreateUserDTO createDTO) {
+        UserResponseDTO responseDTO = userService.save(createDTO);
+        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080/api/v1/users/{id}").build(responseDTO.id());
+        return ResponseEntity.created(uri).build();
     }
 
     @PutMapping(Routes.WITH_ID)
@@ -70,8 +69,8 @@ public class UserController {
 
     @PatchMapping(Routes.PWD_RESOURCE)
     public ResponseEntity<Void> updatePassword(
-        @PathVariable Long id,
-        @RequestBody ChangePasswordDTO dto) {
+            @PathVariable Long id,
+            @RequestBody ChangePasswordDTO dto) {
         userService.updatePassword(id, dto);
         return ResponseEntity.noContent().build();
     }
