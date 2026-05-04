@@ -12,8 +12,6 @@ import br.gaius.restaurant.exceptions.DuplicatedEmailException;
 import br.gaius.restaurant.exceptions.DuplicatedLoginException;
 import br.gaius.restaurant.exceptions.InvalidPaginationParameterException;
 import br.gaius.restaurant.exceptions.InvalidPasswordException;
-import br.gaius.restaurant.exceptions.NoSuchTypeException;
-import br.gaius.restaurant.exceptions.UnsupportedFieldException;
 import br.gaius.restaurant.exceptions.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -51,30 +49,6 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("http://localhost:8080/restaurants/docs/errors/invalid-password"));
         problemDetail.setInstance(URI.create(request.getRequestURI()));
         problemDetail.setTitle("Invalid Password");
-        problemDetail.setDetail(e.getMessage());
-        
-        return problemDetail;
-    }
-
-    @ExceptionHandler(NoSuchTypeException.class)
-    public ProblemDetail handleNoSuchType(NoSuchTypeException e, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND.value());
-        
-        problemDetail.setType(URI.create("http://localhost:8080/restaurants/docs/errors/no-such-type"));
-        problemDetail.setInstance(URI.create(request.getRequestURI()));
-        problemDetail.setTitle("No Such Type");
-        problemDetail.setDetail(e.getMessage());
-        
-        return problemDetail;
-    }
-
-    @ExceptionHandler(UnsupportedFieldException.class)
-    public ProblemDetail handleUsupportedField(UnsupportedFieldException e, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());
-        
-        problemDetail.setType(URI.create("http://localhost:8080/restaurants/docs/errors/unsupported-field"));
-        problemDetail.setInstance(URI.create(request.getRequestURI()));
-        problemDetail.setTitle("Unsupported Field");
         problemDetail.setDetail(e.getMessage());
         
         return problemDetail;
