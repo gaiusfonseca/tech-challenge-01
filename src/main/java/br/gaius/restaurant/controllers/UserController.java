@@ -24,7 +24,7 @@ import br.gaius.restaurant.dtos.UserResponseDTO;
 import br.gaius.restaurant.services.UserService;
 
 @RestController
-@RequestMapping(Routes.USER_RESOURCE)
+@RequestMapping(Routes.USERS)
 public class UserController {
 
     private final UserService userService;
@@ -67,7 +67,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping(Routes.PWD_RESOURCE)
+    @PatchMapping(Routes.PASSWORDS)
     public ResponseEntity<Void> updatePassword(
             @PathVariable Long id,
             @RequestBody ChangePasswordDTO dto) {
