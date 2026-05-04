@@ -1,101 +1,84 @@
 package br.gaius.restaurant.services;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.test.context.ActiveProfiles;
 
+import br.gaius.restaurant.dtos.AuthenticationRequestDTO;
 import br.gaius.restaurant.entities.User;
+import br.gaius.restaurant.entities.UserFixture;
 import br.gaius.restaurant.exceptions.InvalidPasswordException;
 import br.gaius.restaurant.exceptions.UserNotFoundException;
 import br.gaius.restaurant.repositories.UserRepository;
 
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceTest {
 
+    @Mock
     private UserRepository repository;
-    private AuthenticationService service;
 
-    @BeforeEach
-    void setup() {
-        repository = mock(UserRepository.class);
-        service = new AuthenticationService(repository);
-    }
+    @InjectMocks
+    private AuthenticationService service;
 
     @Test
     void shouldAuthenticateWhenLoginAndPasswordMatches() {
         // given
-        String login = "joaquim5070";
-        String password = "y2Ne57P";
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        AuthenticationRequestDTO dto = UserFixture.getAuthRequestDTO();
+        User user = UserFixture.getUser();
 
-        User candidate = User.builder()
-                .withLogin(login)
-                .withPassword(password)
-                .build();
+        String hashed = BCrypt.hashpw("supersecret", BCrypt.gensalt());
+        System.out.println(hashed);
+        
+        when(repository.findByLogin(dto.login())).thenReturn(Optional.of(user));
 
-        User user = User.builder()
-                .withLogin(login)
-                .withPassword(hashedPassword)
-                .build();
-
-        when(repository.findByLogin(login)).thenReturn(Optional.of(user));
 
         // when
-        service.authenticate(candidate);
+        service.authenticate(dto);
 
         // then
-        verify(repository).findByLogin(anyString());
+        verify(repository).findByLogin(dto.login());
     }
 
     @Test
-    void shouldThrowUserNotFoundExceptionWhenLoginDoesntExist(){
+    void shouldThrowUserNotFoundExceptionWhenLoginDoesntExist() {
         // given
-        String login = "joaquim5070";
-        String password = "y2Ne57P";
+        AuthenticationRequestDTO dto = UserFixture.getAuthRequestDTO();
 
-        User candidate = User.builder()
-                .withLogin(login)
-                .withPassword(password)
-                .build();
-        
-        when(repository.findByLogin("not exists")).thenReturn(Optional.ofNullable(null));
+        when(repository.findByLogin(dto.login())).thenReturn(Optional.empty());
 
         // when
-        Executable authenticate = () -> service.authenticate(candidate);
+        Executable authenticate = () -> service.authenticate(dto);
 
         // then
         assertThrows(UserNotFoundException.class, authenticate);
-        verify(repository).findByLogin(anyString());
+        verify(repository).findByLogin(dto.login());
     }
 
     @Test
     void shouldThrowInvalidPasswordExceptionWhenPasswordDoesntMatch() {
         // given
-        String login = "joaquim5070";
-        String password = "y2Ne57P";
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        String invalidPassword = "yh6jqi5R";
-        
-        User candidate = User.builder().withLogin(login).withPassword(invalidPassword).build();
-        User user = User.builder().withLogin(login).withPassword(hashedPassword).build();
-        
-        when(repository.findByLogin(login)).thenReturn(Optional.of(user));
+        AuthenticationRequestDTO dto = new AuthenticationRequestDTO("mugiwara.luffy", "fakepass");
+        User user = UserFixture.getUser();
+
+        when(repository.findByLogin(dto.login())).thenReturn(Optional.of(user));
 
         // when
-        Executable authenticate = () -> service.authenticate(candidate);
+        Executable authenticate = () -> service.authenticate(dto);
 
         // then
         assertThrows(InvalidPasswordException.class, authenticate);
-        verify(repository).findByLogin(anyString());
+        verify(repository).findByLogin(dto.login());
     }
 }
