@@ -1,0 +1,592 @@
+{
+  "info": {
+    "_postman_id": "40fe6202-7729-4965-88f5-0edf2f3ee8da",
+    "name": "Restaurants",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53405568",
+    "_collection_link": "https://go.postman.co/collection/53405568-40fe6202-7729-4965-88f5-0edf2f3ee8da?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "UserServiceTests",
+      "item": [
+        {
+          "name": "FindById",
+          "item": [
+            {
+              "name": "should find user when id exists",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "throw UserNotFoundException when user doesnt exist",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/99",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "99"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "FindAll",
+          "item": [
+            {
+              "name": "should find all users when correct request params",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}?page=1&size=10",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw InvalidPaginationParameterException when invalid request params",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}?page=-1&size=-1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "-1"
+                    },
+                    {
+                      "key": "size",
+                      "value": "-1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw  MissingServletRequestParmeterException when no request params",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "FindByName",
+          "item": [
+            {
+              "name": "should find by name when correct request params",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}?name=maria&page=1&size=10",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "maria"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw InvalidPaginationParameterException when invalid request params",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}?name=maria&page=-1&size=-1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "maria"
+                    },
+                    {
+                      "key": "page",
+                      "value": "-1"
+                    },
+                    {
+                      "key": "size",
+                      "value": "-1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw MissingServletRequestParameterException when invalid request params",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}?name=maria",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "maria"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Save",
+          "item": [
+            {
+              "name": "should create when no duplicated email or login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"mugiwara\",\n    \"password\": \"supersecret123\",\n    \"email\": \"mugiwara.luffy@test.com\",\n    \"name\": \"luffy\",\n    \"address\": \"rua do rei dos piratas, 7\",\n    \"role\": \"CUSTOMER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw DuplicatedEmailException when email already exists",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"mugiwara\",\n    \"password\": \"supersecret123\",\n    \"email\": \"pedro@gmail.com\",\n    \"name\": \"luffy\",\n    \"address\": \"rua do rei dos piratas, 7\",\n    \"role\": \"CUSTOMER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw DuplicatedLoginException when email already exists Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"lucasXyz\",\n    \"password\": \"supersecret123\",\n    \"email\": \"another.luffy@test.com.br\",\n    \"name\": \"luffy\",\n    \"address\": \"rua do rei dos piratas, 7\",\n    \"role\": \"CUSTOMER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Update",
+          "item": [
+            {
+              "name": "should update when no duplicated email or login",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"garp.grandson\",\n    \"email\": \"strawhat.luffy@test.com\",\n    \"name\": \"JoyBoy\",\n    \"address\": \"rua water, 7\",\n    \"role\": \"OWNER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/7",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "7"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw DuplicatedEmailException when email already exists",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"garp.grandson\",\n    \"email\": \"lucas@gmail.com\",\n    \"name\": \"JoyBoy\",\n    \"address\": \"rua water, 7\",\n    \"role\": \"OWNER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/7",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "7"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw DuplicatedLoginException when email already exists Copy",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"joaoBigBoss\",\n    \"email\": \"strawhat.luffy.01@test.com\",\n    \"name\": \"JoyBoy\",\n    \"address\": \"rua water, 7\",\n    \"role\": \"OWNER\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/7",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "7"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Delete",
+          "item": [
+            {
+              "name": "should delete when user exists",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Julia\",\n    \"login\": \"juloucura92\",\n    \"password\": \"secret4312\",\n    \"address\": \"rua dos números, 999\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/7",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "7"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "UpdatePassword",
+          "item": [
+            {
+              "name": "should update password when old password matches",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"oldPassword\": \"X321kHEz\",\n    \"newPassword\": \"q1ZkAT3Y\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/1{{passwords}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "1{{passwords}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw UserNotFoundException when user doesnt exist",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"oldPassword\": \"X321kHEz\",\n    \"newPassword\": \"q1ZkAT3Y\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{users}}/99{{passwords}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{users}}",
+                  "path": [
+                    "99{{passwords}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AuthenticationServiceTests",
+      "item": [
+        {
+          "name": "Authenticate",
+          "item": [
+            {
+              "name": "should authenticate when correct login and password",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"maria1010\",\n    \"password\": \"M4YP14uF\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{authentications}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{authentications}}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw UserNotFoundException when login doesnt exist",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"mugiwara.luffy\",\n    \"password\": \"M4YP14uF\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{authentications}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{authentications}}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "should throw InvalidPasswordException when password doesnt match",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"login\": \"maria1010\",\n    \"password\": \"bxBc99VY\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}:{{port}}{{version}}{{authentications}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "port": "{{port}}{{version}}{{authentications}}"
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "port",
+      "value": ""
+    },
+    {
+      "key": "users",
+      "value": ""
+    },
+    {
+      "key": "passwords",
+      "value": ""
+    },
+    {
+      "key": "version",
+      "value": ""
+    },
+    {
+      "key": "authentications",
+      "value": ""
+    }
+  ]
+}
