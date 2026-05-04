@@ -29,6 +29,7 @@ import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.entities.UserMapper;
 import br.gaius.restaurant.exceptions.DuplicatedEmailException;
 import br.gaius.restaurant.exceptions.DuplicatedLoginException;
+import br.gaius.restaurant.exceptions.InvalidPaginationParameterException;
 import br.gaius.restaurant.repositories.UserRepository;
 
 @ActiveProfiles("test")
@@ -70,13 +71,13 @@ public class UserServiceTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(user));
 
-        Optional<UserResponseDTO> expectedDTO = Optional.of(mapper.to(user));
+        UserResponseDTO expectedDTO = mapper.to(user);
 
         // when
-        Optional<UserResponseDTO> actualDTO = service.findById(id);
+        UserResponseDTO actualDTO = service.findById(id);
 
         // then
-        assertEquals(expectedDTO.get(), actualDTO.get());
+        assertEquals(expectedDTO, actualDTO);
         verify(repository).findById(id);
     }
 
@@ -100,24 +101,17 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldCalculateOffsetWhenInvalidParamsFindByName() {
+    void shouldThrowInvalidParamsExceptionWhenInvalidParams() {
         // given
         String name = "maria";
         int invalidPage = -1;
         int invalidSize = -1;
 
-        int validSize = 10;
-        int offset = 0;
-
-        when(repository.findByName(name, validSize, offset))
-                .thenReturn(List.of(User.builder().build(), User.builder().build()));
-
         // when
-        List<UserResponseDTO> dtos = service.findByName(name, invalidPage, invalidSize);
+        Executable findByNameWithInvalidParams = () -> service.findByName(name, invalidPage, invalidSize);
 
         // then
-        assertEquals(2, dtos.size());
-        verify(repository).findByName(anyString(), eq(validSize), eq(offset));
+        assertThrows(InvalidPaginationParameterException.class, findByNameWithInvalidParams);
     }
 
     @Test
@@ -143,18 +137,11 @@ public class UserServiceTest {
         int invalidPage = -1;
         int invalidSize = -1;
 
-        int validSize = 10;
-        int offset = 0;
-
-        when(repository.findAll(validSize, offset)).thenReturn(List.of(User.builder().build(), User.builder().build(),
-                User.builder().build(), User.builder().build(), User.builder().build(), User.builder().build()));
-
         // when
-        List<UserResponseDTO> dtos = service.findAll(invalidPage, invalidSize);
+        Executable findAllWithInvalidParams = () -> service.findAll(invalidPage, invalidSize);
 
         // then
-        assertEquals(6, dtos.size());
-        verify(repository).findAll(validSize, offset);
+        assertThrows(InvalidPaginationParameterException.class, findAllWithInvalidParams);
     }
 
     @Test
