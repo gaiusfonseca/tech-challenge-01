@@ -14,6 +14,8 @@ import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.entities.UserMapper;
 import br.gaius.restaurant.exceptions.DuplicatedEmailException;
 import br.gaius.restaurant.exceptions.DuplicatedLoginException;
+import br.gaius.restaurant.exceptions.InvalidPaginationParameterException;
+import br.gaius.restaurant.exceptions.UserNotFoundException;
 import br.gaius.restaurant.repositories.UserRepository;
 
 @Service
@@ -27,19 +29,15 @@ public class UserService {
         this.mapper = mapper;
     }
 
-    public Optional<UserResponseDTO> findById(Long id) {
+    public UserResponseDTO findById(Long id) {
         Optional<User> possibleUser = repository.findById(id);
-        UserResponseDTO dto = mapper.to(possibleUser.orElse(null));
-        return Optional.ofNullable(dto);
+        UserResponseDTO dto = mapper.to(possibleUser.orElseThrow(() -> new UserNotFoundException(id)));
+        return dto;
     }
 
     public List<UserResponseDTO> findByName(String name, int page, int size) {
-        if (page < 1){
-            page = 1;
-        }
-
-        if (size < 1){
-            size = 10;
+        if (page < 1 || size < 1){
+            throw new InvalidPaginationParameterException(page, size);
         }
 
         int offset = getOffset(page, size);
@@ -50,12 +48,8 @@ public class UserService {
     }
 
     public List<UserResponseDTO> findAll(int page, int size) {
-        if (page < 1){
-            page = 1;
-        }
-
-        if (size < 1){
-            size = 10;
+        if (page < 1 || size < 1){
+            throw new InvalidPaginationParameterException(page, size);
         }
 
         int offset = getOffset(page, size);
@@ -104,7 +98,7 @@ public class UserService {
     }
 
     public void updatePassword(Long id, ChangePasswordDTO dto) {
-        User user = repository.findById(id).orElseThrow();
+        User user = repository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         String hashedPassword = BCrypt.hashpw(dto.newPassword(), BCrypt.gensalt());
         repository.updatePassword(user.getId(), hashedPassword);
     }
