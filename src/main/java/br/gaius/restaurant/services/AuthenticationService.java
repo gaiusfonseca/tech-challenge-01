@@ -3,6 +3,7 @@ package br.gaius.restaurant.services;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import br.gaius.restaurant.dtos.AuthenticationRequestDTO;
 import br.gaius.restaurant.entities.User;
 import br.gaius.restaurant.exceptions.InvalidPasswordException;
 import br.gaius.restaurant.exceptions.UserNotFoundException;
@@ -17,15 +18,13 @@ public class AuthenticationService {
         this.repository = repository;
     }
 
-    public void authenticate(User candidate) {
-        User user = repository.findByLogin(candidate.getLogin())
-                .orElseThrow(() -> new UserNotFoundException(candidate.getLogin()));
+    public void authenticate(AuthenticationRequestDTO auth) {
+        User user = repository.findByLogin(auth.login())
+                .orElseThrow(() -> new UserNotFoundException(auth.login()));
 
-        if (BCrypt.checkpw(candidate.getPassword(), user.getPassword())) {
-            return;
+        if (!BCrypt.checkpw(auth.password(), user.getPassword())) {
+            throw new InvalidPasswordException(auth.login(), auth.password());
         }
-
-        throw new InvalidPasswordException(candidate.getLogin(), candidate.getPassword());
     }
 
 }
