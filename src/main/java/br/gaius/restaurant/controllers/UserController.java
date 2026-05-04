@@ -2,7 +2,6 @@ package br.gaius.restaurant.controllers;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,8 +33,8 @@ public class UserController {
     }
 
     @GetMapping(Routes.WITH_ID)
-    public ResponseEntity<Optional<UserResponseDTO>> findById(@PathVariable Long id) {
-        Optional<UserResponseDTO> dto = userService.findById(id);
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
+        UserResponseDTO dto = userService.findById(id);
         return ResponseEntity.ok(dto);
     }
 
