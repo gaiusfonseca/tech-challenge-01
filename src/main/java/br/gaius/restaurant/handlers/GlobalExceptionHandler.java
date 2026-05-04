@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicatedEmailException.class)
     public ProblemDetail handleDuplicatedEmail(DuplicatedEmailException e, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         
         problemDetail.setType(URI.create("http://localhost:8080/restaurants/docs/errors/duplicated-email"));
         problemDetail.setInstance(URI.create(request.getRequestURI()));
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicatedLoginException.class)
     public ProblemDetail handleDuplicatedLogin(DuplicatedLoginException e, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         
         problemDetail.setType(URI.create("http://localhost:8080/restaurants/docs/errors/duplicated-login"));
         problemDetail.setInstance(URI.create(request.getRequestURI()));
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidPasswordException.class)
     public ProblemDetail handleInvalidPassword(InvalidPasswordException e, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         
         problemDetail.setType(URI.create("http://localhost:8080/restaurants/docs/errors/invalid-password"));
         problemDetail.setInstance(URI.create(request.getRequestURI()));
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFound(UserNotFoundException e, HttpServletRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         
         problemDetail.setType(URI.create("http://localhost:8080/restaurants/docs/errors/user-not-found"));
         problemDetail.setInstance(URI.create(request.getRequestURI()));
