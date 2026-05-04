@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
-import java.util.Optional;
+import java.net.URI;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +18,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import br.gaius.restaurant.entities.Role;
-import br.gaius.restaurant.entities.User;
+import br.gaius.restaurant.dtos.CreateUserDTO;
+import br.gaius.restaurant.dtos.UserResponseDTO;
+import br.gaius.restaurant.entities.UserFixture;
+import br.gaius.restaurant.exceptions.DuplicatedEmailException;
+import br.gaius.restaurant.exceptions.DuplicatedLoginException;
+import br.gaius.restaurant.exceptions.InvalidPaginationParameterException;
+import br.gaius.restaurant.exceptions.UserNotFoundException;
 import br.gaius.restaurant.services.UserService;
 
 /* 
@@ -40,111 +46,225 @@ Todo o resto são apenas Mocks. Ideal para testes unitários
 @AutoConfigureJsonTesters
 public class UserControllerTest {
 
-        @Autowired
-        private MockMvcTester mockMvcTester;
+    @Autowired
+    private MockMvcTester mockMvcTester;
 
-        @MockitoBean
-        private UserService service;
+    @MockitoBean
+    private UserService service;
 
-        @Autowired
-        JacksonTester<User> jacksonTester;
+    @Autowired
+    JacksonTester<UserResponseDTO> responseJsonTester;
 
-        @Test
-        void shouldFindUserByIdWhenUserExists() throws Exception {
-                // given
-                Long id = 1L;
+    @Autowired
+    JacksonTester<CreateUserDTO> createJsonTester;
 
-                User user = User.builder()
-                                .withId(id)
-                                .withLogin("pedro321")
-                                .withEmail("pedro@gmail.com")
-                                .withName("pedro")
-                                .withAddress("rua das acácias, 12")
-                                .withLastModified(LocalDate.of(2026, 04, 01))
-                                .withRole(Role.CUSTOMER)
-                                .build();
+    @Test
+    void shouldFindUserByIdWhenUserExists() throws Exception {
+        // given
+        Long id = 7L;
+        UserResponseDTO dto = UserFixture.getResponseDTO();
 
-                when(service.findById(id)).thenReturn(Optional.of(user));
+        when(service.findById(id)).thenReturn(dto);
 
-                // when
-                MvcTestResult result = mockMvcTester.get()
-                                .uri(Routes.USER_RESOURCE + Routes.WITH_ID.replace("{id}", id.toString())).exchange();
-
-                // then
-                assertThat(result)
-                                .hasStatusOk()
-                                .hasContentType(MediaType.APPLICATION_JSON)
-                                .bodyJson().isEqualTo(jacksonTester.write(user).getJson());
-        }
-
-        @Test
-        void shouldReturnEmptyJsonWhenUserDoesNotExist() {
-                // given
-                Long id = 20L;
-
-                when(service.findById(id)).thenReturn(Optional.ofNullable(null));
-
-                // when
-                MvcTestResult result = mockMvcTester.get()
-                                .uri(Routes.USER_RESOURCE + Routes.WITH_ID.replace("{id}", id.toString())).exchange();
-
-                // then
-                assertThat(result)
-                                .hasStatusOk()
-                                .hasContentType(MediaType.APPLICATION_JSON)
-                                .bodyJson().extracting(content -> content.getJson()).isEqualTo("null");
-
-                verify(service).findById(anyLong());
-        }
-
-        /* @Test
-        void shouldSaveUser() throws Exception {
-                // given
-                Long id = 7L;
-                String login = "mugiwaraLuffy";
-                String password = "secret123";
-                String email = "mugiwara.luffy@test.com.br";
-                String name = "luffy";
-                String address = "rua dos rei pirata, 7";
-                LocalDate lastModified = LocalDate.now();
-                Role role = Role.CUSTOMER;
-
-                CreateUserDTO createDto = new CreateUserDTO(login, password, email, name, address, role);
-                UserResponseDTO responseDto = new UserResponseDTO(id, login, email, name, address, lastModified, role);
-
-                when(service.save(createDto)).thenReturn(responseDto);
-
-                // when
-                MvcTestResult result = mockMvcTester.post()
-                .uri(Routes.USER_RESOURCE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jacksonTester.write(createDto).getJson())
+        // when
+        MvcTestResult result = mockMvcTester.get()
+                .uri(Routes.USERS + Routes.WITH_ID.replace("{id}", id.toString()))
                 .exchange();
 
-                
-                // then
-                assertThat(result)
-                        .hasStatus(HttpStatus.CREATED)
-                        .hasForwardedUrl(Routes.USER_RESOURCE + id);
+        // then
+        assertThat(result)
+                .hasStatus(HttpStatus.OK)
+                .hasContentType(MediaType.APPLICATION_JSON)
+                .bodyJson().extracting(jsonContent -> jsonContent.getJson())
+                .isEqualTo(responseJsonTester.write(dto).getJson());
 
-                verify(service).save(createDto);
+        verify(service).findById(id);
+    }
 
-        } */
+    @Test
+    void shouldThrowUserNotFoundExceptionWhenUserDoesntExist() {
+        // given
+        Long id = 99L;
 
-        @Test
-        void shouldReturnStatusOKWhenDeleteUser() {
-                // given
-                Long id = 1L;
+        when(service.findById(id)).thenThrow(UserNotFoundException.class);
 
-                // when
-                MvcTestResult result = mockMvcTester.delete()
-                                .uri(Routes.USER_RESOURCE + Routes.WITH_ID.replace("{id}", id.toString())).exchange();
+        // when
+        MvcTestResult result = mockMvcTester.get()
+                .uri(Routes.USERS + Routes.WITH_ID.replace("{id}", id.toString())).exchange();
 
-                // then
-                assertThat(result)
-                                .hasStatus(HttpStatus.NO_CONTENT);
+        // then
+        assertThat(result)
+                .hasFailed()
+                .hasStatus(HttpStatus.NOT_FOUND)
+                .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .bodyJson().extractingPath("$.title").isEqualTo("User not found");
 
-                verify(service).delete(anyLong());
-        }
+        verify(service).findById(anyLong());
+    }
+
+    @Test
+    void shouldFindAllWhenCorrectParams() {
+        // given
+        int page = 1;
+        int size = 10;
+
+        URI requestURL = UriComponentsBuilder.fromUriString(Routes.USERS)
+            .queryParam("page", "{page}")
+            .queryParam("size", "{size}")
+            .encode()
+            .buildAndExpand(Integer.toString(page), Integer.toString(size))
+            .toUri();
+
+        List<UserResponseDTO> users = List.of(UserFixture.getResponseDTO(), UserFixture.getResponseDTO());
+
+        when(service.findAll(page, size)).thenReturn(users);
+
+        // when
+        MvcTestResult result = mockMvcTester.get().uri(requestURL).exchange();
+
+        // then
+        assertThat(result)
+            .hasStatus(HttpStatus.OK)
+            .hasContentType(MediaType.APPLICATION_JSON)
+            .bodyJson().extractingPath("$").asArray().hasSize(2);
+    }
+
+    @Test
+    void shouldThrowInvalidPaginationParamsWhenInvalidParams() {
+        // given
+        int page = -1;
+        int size = -1;
+
+        URI requestURL = UriComponentsBuilder.fromUriString(Routes.USERS)
+            .queryParam("page", "{page}")
+            .queryParam("size", "{size}")
+            .encode()
+            .buildAndExpand(Integer.toString(page), Integer.toString(size))
+            .toUri();
+
+        when(service.findAll(page, size)).thenThrow(InvalidPaginationParameterException.class);
+
+        // when
+        MvcTestResult result = mockMvcTester.get().uri(requestURL).exchange();
+
+        // then
+        assertThat(result)
+            .hasFailed()
+            .hasStatus(HttpStatus.BAD_REQUEST)
+            .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+            .bodyJson().extractingPath("$.title").isEqualTo("Invalid Pagination Parameter Request");
+    }
+
+    @Test
+    void shouldThrowMissingRequestParamsWhenNoParams() {
+        // given
+        URI requestURL = UriComponentsBuilder.fromUriString(Routes.USERS)
+            .build()
+            .toUri();
+
+        // when
+        MvcTestResult result = mockMvcTester.get().uri(requestURL).exchange();
+
+        // then
+        assertThat(result)
+            .hasFailed()
+            .hasStatus(HttpStatus.BAD_REQUEST)
+            .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+            .bodyJson().extractingPath("$.title").isEqualTo("Missing Request Parameters");
+    }
+
+    @Test
+    void shouldSaveUserWhenNoDuplicatedEmailOrLogin() throws Exception {
+        // given
+        Long id = 7L;
+        CreateUserDTO createDTO = UserFixture.getCreateDTO();
+        UserResponseDTO responseDTO = UserFixture.getResponseDTO();
+
+        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8080" + Routes.USERS + Routes.WITH_ID)
+                .build(id.toString());
+
+        when(service.save(createDTO)).thenReturn(responseDTO);
+
+        // when
+        MvcTestResult result = mockMvcTester
+                .post()
+                .uri(Routes.USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createJsonTester.write(createDTO).getJson())
+                .exchange();
+
+        // then
+        assertThat(result)
+                .hasStatus(HttpStatus.CREATED)
+                .hasHeader("location", uri.toString());
+
+        verify(service).save(createDTO);
+    }
+
+    @Test
+    void shouldThrowDuplicatedEmailExceptionWhenEmailIsDuplicated() throws Exception {
+        // given
+        CreateUserDTO createDTO = UserFixture.getCreateDTO();
+
+        when(service.save(createDTO)).thenThrow(DuplicatedEmailException.class);
+
+        // when
+        MvcTestResult result = mockMvcTester
+                .post()
+                .uri(Routes.USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createJsonTester.write(createDTO).getJson())
+                .exchange();
+
+        // then
+        assertThat(result)
+                .hasFailed()
+                .hasStatus(HttpStatus.CONFLICT)
+                .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .bodyJson().extractingPath("$.title").isEqualTo("Duplicated Email");
+
+        verify(service).save(createDTO);
+    }
+
+    @Test
+    void shouldThrowDuplicatedLoginExceptionWhenEmailIsDuplicated() throws Exception {
+        // given
+        CreateUserDTO createDTO = UserFixture.getCreateDTO();
+
+        when(service.save(createDTO)).thenThrow(DuplicatedLoginException.class);
+
+        // when
+        MvcTestResult result = mockMvcTester
+                .post()
+                .uri(Routes.USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createJsonTester.write(createDTO).getJson())
+                .exchange();
+
+        // then
+        assertThat(result)
+                .hasFailed()
+                .hasStatus(HttpStatus.CONFLICT)
+                .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .bodyJson().extractingPath("$.title").isEqualTo("Duplicated Login");
+
+        verify(service).save(createDTO);
+    }
+
+    @Test
+    void shouldReturnStatusOKWhenDeleteUser() {
+        // given
+        Long id = 1L;
+
+        // when
+        MvcTestResult result = mockMvcTester.delete()
+                .uri(Routes.USERS + Routes.WITH_ID.replace("{id}", id.toString())).exchange();
+
+        // then
+        assertThat(result)
+                .hasStatus(HttpStatus.NO_CONTENT);
+
+        verify(service).delete(anyLong());
+    }
 
 }
