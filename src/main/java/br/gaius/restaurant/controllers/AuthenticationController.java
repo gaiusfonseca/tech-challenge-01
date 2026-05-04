@@ -11,7 +11,7 @@ import br.gaius.restaurant.services.AuthenticationService;
 
 
 @RestController
-@RequestMapping(Routes.BASE_URL + Routes.AUTH)
+@RequestMapping(Routes.BASE_URL + Routes.AUTHENTICATIONS)
 public class AuthenticationController {
 
     private final AuthenticationService service;
