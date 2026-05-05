@@ -1,0 +1,40 @@
+services:
+
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_USER: spring
+      MYSQL_PASSWORD: 123456
+      MYSQL_DATABASE: restaurantdb
+    container_name: database
+    image: mysql:8.1
+    volumes:
+      - mysql_volume:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - mysql_network
+  
+  spring:
+    container_name: spring-api
+    depends_on:
+      - mysql
+    image: spring-restaurant-api:2.0
+    ports: 
+      - 8080:8080
+    environment:
+      SPRING_DB_HOST: mysql:3306
+      SPRING_DB_USER: spring
+      SPRING_DB_PASSWORD: 123456
+      SPRING_DB_NAME: restaurantdb
+
+
+volumes:
+  mysql_volume:
+
+networks:
+  mysql_network:
+
+#MYSQL_ROOT_PASSWORD
+#MYSQL_ALLOW_EMPTY_PASSWORD
+#MYSQL_RANDOM_ROOT_PASSWORD
